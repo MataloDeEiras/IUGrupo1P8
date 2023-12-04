@@ -85,6 +85,13 @@ function capitalize(str) {
 </template>
 
 <style>
+.table>thead>tr>th {
+  background-color: white;
+  position: sticky;
+  position: -webkit-sticky;
+  top: 0;
+  z-index: 2;
+}
 span.badge.text-bg-light {
   margin-left: 3px;
   margin-right: 3px;
