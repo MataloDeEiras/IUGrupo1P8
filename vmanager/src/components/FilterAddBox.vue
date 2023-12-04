@@ -4,9 +4,16 @@ import { ref } from 'vue'
 const props = defineProps([
   'modelValue', 
   'addBtnTitle',
+  //Añadido por Galdo para el Ejercicio 7
+  'runBtnTitle',
+  'slpBtnTitle',
+  'stpBtnTitle',
+  //
   'cols'
 ])
-const emit = defineEmits(['update:modelValue', 'addElement'])
+
+//Añadido desde runGroup por Galdo para el Ejercicio 7
+const emit = defineEmits(['update:modelValue', 'addElement', 'runGroup', 'sleepGroup', 'stopGroup'])
 
 const searchKey = ref('')
 const advSearch = ref(false)
@@ -45,6 +52,19 @@ function send() {
       @click="$emit('addElement')"
       class="btn btn-outline-primary">➕</button>
     </div>
+    <!-- Añadido por Galdo para el Ejercicio 7 -->
+    <div class="col-auto d-inline">
+      <button type="button" :title="runBtnTitle"
+      @click="$emit('runGroup')"
+      class="btn btn-outline-success">▶</button>
+      <button type="button" :title="slpBtnTitle"
+      @click="$emit('sleepGroup')"
+      class="btn btn-outline-warning">🌙</button>
+      <button type="button" :title="stpBtnTitle"
+      @click="$emit('stopGroup')"
+      class="btn btn-outline-danger">⬛</button>
+    </div>
+    <!-- -->
   </div>
   <div v-if="advSearch" class="row mt-3">
     <div class="col-auto">
