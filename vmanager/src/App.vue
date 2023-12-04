@@ -140,26 +140,26 @@ const switchGroups = (vmId) => {
   <!-- Navbar principal -->
   <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">VManager</a>
+      <a class="navbar-brand" href="#" title="Ir al inicio" >VManager</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" title="Menú" >
         <span class="navbar-toggler-icon"></span>
       </button>
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#div-groups">Grupos</a>
+          <a class="nav-link active" aria-current="page" href="#div-groups" title="Ir a los grupos" >Grupos</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#div-vms">Vms</a>
+          <a class="nav-link active" aria-current="page" href="#div-vms" title="Ir a las máquinas virtuales" >Vms</a>
         </li>
         </ul>        
           <div class="nav-item ms-auto">
             <div class="btn-group">
-              <button id="save" class="btn btn-outline-secondary">💾</button>
-              <button id="clean" class="btn btn-outline-secondary">🧽</button>
-              <button id="restore" class="btn btn-outline-secondary">↩️</button>
+              <button id="save" title="Guardar estado aplicacion" class="btn btn-outline-secondary">💾</button>
+              <button id="clean" title="" class="btn btn-outline-secondary">🧽</button> <!-- Preguntar -->
+              <button id="restore" title="Reestablecer estado" class="btn btn-outline-secondary">↩️</button>
             </div>
           </div>
       </div>
@@ -181,7 +181,7 @@ const switchGroups = (vmId) => {
               <span class="name">{{ groupFilterVm.name }}×</span>
             </span>            
           </h5>
-          <a class="d-inline d-sm-none details" href="#div-details">↘️</a>
+          <a class="d-inline d-sm-none details" href="#div-details" title="Ir a Detalles" >↘️</a>
         </div>        
         <span v-if="debug"> {{ searchGroupQuery }}</span>        
         <FilterAddBox 
@@ -198,7 +198,7 @@ const switchGroups = (vmId) => {
       <!-- 2a columna: vms -->
       <div id="div-vms" class="col-md">
         <div>
-          <a class="d-inline d-sm-none escape" href="#">⬆️</a>
+          <a class="d-inline d-sm-none escape" href="#" title="Ir al inicio" >⬆️</a>
           <h5 class="d-inline">Máquinas Virtuales 
             <span v-if="vmFilterGroup" class="filter"
               @click="switchVms(-1)">
@@ -206,7 +206,7 @@ const switchGroups = (vmId) => {
               <span class="name">{{ vmFilterGroup.name }}×</span>
             </span>            
           </h5>
-          <a class="d-inline d-sm-none details" href="#div-details">↘️</a>
+          <a class="d-inline d-sm-none details" href="#div-details" title="Ir a Detalles" >↘️</a>
         </div>           
         <span v-if="debug"> {{ searchVmQuery }}</span>
         <FilterAddBox 
@@ -223,7 +223,7 @@ const switchGroups = (vmId) => {
       <!-- 3a zona: detalles vms actuales -->
       <div id="div-details" class="col-md">
         <div>
-          <a class="d-inline d-sm-none escape" href="#">⬆️</a>
+          <a class="d-inline d-sm-none escape" href="#" title="Irr al inicio" >⬆️</a>
           <h5 class="d-inline">Detalles</h5>
         </div>   
         <div id="details" class="container">

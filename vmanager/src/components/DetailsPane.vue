@@ -67,19 +67,19 @@ function list(state) {
   
     <h5>Acciones</h5>
     <div class="btn-group">
-      <button @click="$emit('editVm')" class="btn btn-outline-success">✏️</button>
+      <button @click="$emit('editVm')" class="btn btn-outline-success" title="Editar máquina virtual" >✏️</button>
 
-      <button v-if="element.groups.length" class="btn btn-outline-warning"
+      <button v-if="element.groups.length" class="btn btn-outline-warning" title="Ver grupos que contienen la máquina virtual" 
         @click="$emit('filterVm')" >🔬</button>
       
-      <button v-if="element.state != VmState.RUNNING" class="btn btn-outline-secondary"
+      <button v-if="element.state != VmState.RUNNING" class="btn btn-outline-secondary" title="Arrancar máquina virtual" 
         @click="$emit('setState', VmState.RUNNING)" >▶</button>
-      <button v-if="element.state != VmState.SUSPENDED" class="btn btn-outline-secondary"
+      <button v-if="element.state != VmState.SUSPENDED" class="btn btn-outline-secondary" title="Suspender máquina virtual" 
         @click="$emit('setState', VmState.SUSPENDED)">💤</button>
-      <button v-if="element.state != VmState.STOPPED" class="btn btn-outline-secondary"
+      <button v-if="element.state != VmState.STOPPED" class="btn btn-outline-secondary" title="Parar máquina virtual" 
         @click="$emit('setState', VmState.STOPPED)">🛑</button>
       
-      <button @click="$emit('rmVm')" class="btn btn-outline-danger">🗑️</button>
+      <button @click="$emit('rmVm')" class="btn btn-outline-danger" title="Eliminar máquina virtual" >🗑️</button>
     </div>
 
     </div>
@@ -114,9 +114,9 @@ function list(state) {
 
     <h5>Acciones</h5>
     <div class="btn-group">
-      <button @click="$emit('editGroup')" class="btn btn-outline-success">✏️</button>
-      <button @click="$emit('filterGroup')" class="btn btn-outline-warning">🔬</button>
-      <button @click="$emit('rmGroup')" class="btn btn-outline-danger">🗑️</button>
+      <button @click="$emit('editGroup')" class="btn btn-outline-success" title="Editar grupo" >✏️</button>
+      <button @click="$emit('filterGroup')" class="btn btn-outline-warning" title="Ver máquinas que pertenecen al grupo" >🔬</button>
+      <button @click="$emit('rmGroup')" class="btn btn-outline-danger" title="Eliminar grupo" >🗑️</button>
     </div>
   </div>
 </template>
