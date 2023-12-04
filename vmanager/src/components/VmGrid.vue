@@ -49,7 +49,7 @@ function capitalize(str) {
 </script>
 
 <template>
-  <table v-if="filteredData.length">
+  <table class="table table-hover" v-if="filteredData.length">
     <thead>
       <tr>
         <th v-for="key in columns" :key="key"
@@ -70,7 +70,9 @@ function capitalize(str) {
             <span class="name">{{entry[key]}}</span>
           </template>
           <template v-else-if="Array.isArray(entry[key])">
-            {{entry[key].map(v => resolve(v).name)}}
+            <template v-for="item in entry[key]" :key="item">
+              <span class="badge text-bg-light">{{resolve(item).name}}</span>
+            </template>
           </template>
           <template v-else>
             {{entry[key]}}
@@ -83,6 +85,10 @@ function capitalize(str) {
 </template>
 
 <style>
+span.badge.text-bg-light {
+  margin-left: 3px;
+  margin-right: 3px;
+}
 .arrow.asc::after {
   content: "↓"
 }
