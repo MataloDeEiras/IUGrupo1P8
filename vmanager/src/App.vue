@@ -66,13 +66,6 @@ function rmVm(id) {
   refresh();
 }
 
-function setState(id, state) {
-  const vm = M.resolve(id);
-  vm.state = state;
-  M.setVm(vm);
-  refresh();
-}
-
 /////
 // Grupos
 /////
@@ -101,8 +94,18 @@ function rmGroup(id) {
   refresh();
 }
 
+// Añadido para el Ejercicio 7
+// Dado el id de un grupo, pone el estado de todos sus miembros a state
+function setGroupState(id, state) {
+  if (selected.value.id == id) {
+    console.log("initiating run on group ", id);
+    M.resolve(id).members.map(vmId => setState(vmId, state));
+  }
+}
+  
+
 /////
-// Búsqueda y Filtrado
+// Búsqueda, Filtrado y Cambio de Estados
 /////
 
 const searchGroupQuery = ref({all: '', fields: []})
@@ -132,6 +135,20 @@ const switchGroups = (vmId) => {
   groupFilterVm.value = (vmId == -1) ? 
     null :
     M.resolve(vmId)        
+}
+
+// Editada y movida para el Ejercicio 7
+// Ahora determina si está tratando con un grupo o con una vm, y cambia su estado
+function setState(id, state) {
+  const entity = M.resolve(id);
+  if (Array.isArray(entity.groups)) {
+    entity.state = state;
+    M.setVm(entity);
+  }
+  else {
+    entity.members.map(vmId => setState(vmId, state));
+  }
+  refresh();
 }
 
 </script>
@@ -183,12 +200,16 @@ const switchGroups = (vmId) => {
           </h5>
           <a class="d-inline d-sm-none details" href="#div-details">↘️</a>
         </div>        
-        <span v-if="debug"> {{ searchGroupQuery }}</span>        
+        <span v-if="debug"> {{ searchGroupQuery }}</span>      
         <FilterAddBox 
           v-model="searchGroupQuery" 
           :cols="['name', 'members']"
           @add-element="edGroup(-1)"
-          addBtnTitle="Añadir nuevo grupo"/>          
+          addBtnTitle="Añadir nuevo grupo"
+          @set-state="state=>setState(selected.id, state)"
+          runBtnTitle="Iniciar un grupo"
+          suspendBtnTitle="Suspender un grupo" 
+          stopBtnTitle="Apagar un grupo" />         
         <div class="overflow-y-scroll vh-100">
             <VmGrid :data="groups" :columns="['name', 'members']" :filter-key="searchGroupQuery.all"
             @choose="(e) => { console.log('selected vm', e); selected = M.resolve(e) }">
@@ -213,7 +234,11 @@ const switchGroups = (vmId) => {
           v-model="searchVmQuery" 
           :cols="['name', 'ram', 'hd', 'ip']"
           @add-element="edVm(-1)"
-          addBtnTitle="Añadir nueva VM"/>
+          addBtnTitle="Añadir nueva VM"
+          @set-state="state=>setState(selected.id, state)"
+          runBtnTitle="Iniciar una VM"
+          suspendBtnTitle="Suspender una VM" 
+          stopBtnTitle="Apagar una VM" />
         <div class="overflow-y-scroll vh-100">
           <VmGrid :data="vms" :columns="['name', 'ram', 'groups', 'state']" :filter-key="searchVmQuery.all"
           @choose="(e) => { console.log('selected group', e); selected = M.resolve(e) }">

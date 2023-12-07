@@ -116,6 +116,14 @@ function list(state) {
     <div class="btn-group">
       <button @click="$emit('editGroup')" class="btn btn-outline-success">✏️</button>
       <button @click="$emit('filterGroup')" class="btn btn-outline-warning">🔬</button>
+      <!-- Añadido para el Ejercicio 7 -->
+      <button v-if="element.members.some(vm => resolve(vm).state != VmState.RUNNING)" class="btn btn-outline-secondary"
+        @click="$emit('setState', VmState.RUNNING)" >▶</button>
+      <button v-if="element.members.some(vm => resolve(vm).state != VmState.SUSPENDED)" class="btn btn-outline-secondary"
+        @click="$emit('setState', VmState.SUSPENDED)">💤</button>
+      <button v-if="element.members.some(vm => resolve(vm).state != VmState.STOPPED)" class="btn btn-outline-secondary"
+        @click="$emit('setState', VmState.STOPPED)">🛑</button>
+      <!-- -->
       <button @click="$emit('rmGroup')" class="btn btn-outline-danger">🗑️</button>
     </div>
   </div>
