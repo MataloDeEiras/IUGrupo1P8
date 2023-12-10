@@ -49,7 +49,7 @@ function capitalize(str) {
 </script>
 
 <template>
-  <table class="table table-hover" v-if="filteredData.length">
+  <table class="table table-hover" class="table table-hover" v-if="filteredData.length">
     <thead>
       <tr>
         <th v-for="key in columns" :key="key"
