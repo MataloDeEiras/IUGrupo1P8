@@ -4,6 +4,12 @@ import { resolve } from '../model.js'
 
 // basado en https://vuejs.org/examples/#grid
 
+const stateToEmoji = {
+  "funcionando": "🟢",
+  "apagada": "🟥",
+  "suspendida": "💤"
+}
+
 const props = defineProps({
   data: Array,
   columns: Array,
@@ -68,6 +74,12 @@ function capitalize(str) {
         <td v-for="key in columns" :key="`_${entry.id}_${key}`" class="text-start">
           <template v-if="key === 'name'">
             <span class="name">{{entry[key]}}</span>
+          </template>
+          <template v-else-if="key === 'ram'">
+            {{entry[key]}}{{" Gb"}}
+          </template>
+          <template v-else-if="key === 'state'">
+            {{stateToEmoji[entry[key]]}}
           </template>
           <template v-else-if="Array.isArray(entry[key])">
             <template v-for="item in entry[key]" :key="item">
