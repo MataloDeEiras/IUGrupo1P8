@@ -20,7 +20,7 @@
 </script>
 
 <template>
-  <span :class="vmStateClasses[state]">{{vmStateIcons[state]}}</span>
+  <span :class="vmStateClasses[state]" :title="state">{{vmStateIcons[state]}}</span>
 </template>
 
 <style scoped>
