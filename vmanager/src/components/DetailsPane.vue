@@ -1,5 +1,6 @@
 <script setup>
 import { resolve, VmState } from '../model.js'
+import StateLabel from './VmState.vue'
 
 defineEmits(['editVm', 'filterVm', 'rmVm', 'editGroup', 'filterGroup', 'rmGroup', 'setState'])
 
@@ -25,7 +26,7 @@ function list(state) {
     <table>
       <tr>
         <th>Estado</th>
-        <td>{{ element.state }} </td>
+        <td><StateLabel :state="element.state" /></td>
       </tr>
       <tr>
         <th>Memoria</th>

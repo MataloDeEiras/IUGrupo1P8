@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { resolve } from '../model.js'
+import VmState  from './VmState.vue'
 
 // basado en https://vuejs.org/examples/#grid
 
@@ -46,6 +47,18 @@ function sortBy(key) {
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
+  
+function head(array, n) {
+  return array.slice(0,n);  
+}
+
+function tail(array, n) {
+  return array.slice(n);
+}
+
+function pretty(array) {
+   return array.map(v => resolve(v).name).join(", ")
+}
 </script>
 
 <template>
@@ -70,7 +83,13 @@ function capitalize(str) {
             <span class="name">{{entry[key]}}</span>
           </template>
           <template v-else-if="Array.isArray(entry[key])">
-            {{entry[key].map(v => resolve(v).name)}}
+            <span v-if="(entry[key].length>3)">{{ pretty(head(entry[key], 3)) }} </span> 
+            <span :title="pretty(tail(entry[key], 3))" v-if="(entry[key].length>3)">    +{{tail(entry[key], 3).length}}  </span>    
+            <p v-else>{{ pretty(head(entry[key])) }}</p> 
+          </template>
+          <template v-else-if="key === 'state'">
+            <VmState :state="entry[key]">
+            </VmState>
           </template>
           <template v-else>
             {{entry[key]}}

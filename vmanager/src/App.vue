@@ -157,7 +157,7 @@ const switchGroups = (vmId) => {
         </ul>        
           <div class="nav-item ms-auto">
             <div class="btn-group">
-              <button id="save" title="Guardar estadon" class="btn btn-outline-secondary">💾</button>
+              <button id="save" title="Guardar estado" class="btn btn-outline-secondary">💾</button>
               <button id="clean" title="Limpiar estado" class="btn btn-outline-secondary">🧽</button>
               <button id="restore" title="Reestablecer estado" class="btn btn-outline-secondary">↩️</button>
             </div>
