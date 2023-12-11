@@ -95,23 +95,46 @@ function list(state) {
     <table>
       <tr>
         <th>{{ element.members.length }} integrantes</th>
-        <td v-if="element.members.length">{{ list(false) }}
+        <td v-if="element.members.length">
+          <template v-for="vm in list(false).split(' ')" :key="vm">
+            <span class="badge text-bg-light">
+              {{vm}}
+            </span>
+          </template>
         </td>
         <td v-else> (no hay) </td>
       </tr>
       <tr>
         <th>Encendidas</th>
-        <td v-if="list(VmState.RUNNING).length">{{ list(VmState.RUNNING) }}</td>
+        <td v-if="list(VmState.RUNNING).length">
+          <template v-for="vm in list(VmState.RUNNING).split(' ')" :key="vm">
+            <span class="badge text-bg-light">
+              {{vm}}
+            </span>
+          </template>
+        </td>
         <td v-else> (no hay) </td>
       </tr>
       <tr>
         <th>Suspendidas</th>
-        <td v-if="list(VmState.SUSPENDED).length">{{ list(VmState.SUSPENDED) }}</td>
+        <td v-if="list(VmState.RUNNING).length">
+          <template v-for="vm in list(VmState.SUSPENDED).split(' ')" :key="vm">
+            <span class="badge text-bg-light">
+              {{vm}}
+            </span>
+          </template>
+        </td>
         <td v-else> (no hay) </td>
       </tr>
       <tr>
         <th>Apagadas</th>
-        <td v-if="list(VmState.STOPPED).length">{{ list(VmState.STOPPED) }}</td>
+        <td v-if="list(VmState.RUNNING).length">
+          <template v-for="vm in list(VmState.STOPPED).split(' ')" :key="vm">
+            <span class="badge text-bg-light">
+              {{vm}}
+            </span>
+          </template>
+        </td>
         <td v-else> (no hay) </td>
       </tr>
     </table>
