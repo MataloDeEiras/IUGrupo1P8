@@ -1,7 +1,7 @@
 <script setup>
-import { resolve, VmState } from '../model.js'
+import { resolve, VmState, resolveName } from '../model.js'
 
-defineEmits(['editVm', 'filterVm', 'rmVm', 'editGroup', 'filterGroup', 'rmGroup', 'setState'])
+defineEmits(['editVm', 'filterVm', 'rmVm', 'editGroup', 'filterGroup', 'rmGroup', 'setState', 'choose'])
 
 const props = defineProps({
   element: Object
@@ -60,7 +60,7 @@ function list(state) {
         <th>Grupos a los que pertenece</th>
         <td v-if="element.groups.length">
           <template v-for="group in element.groups.map(g => resolve(g).name)" :key="group">
-            <span class="badge text-bg-light">
+            <span class="badge text-bg-light" @click="$emit('choose', resolveName(group).id)">
               {{group}}
             </span>
           </template>
@@ -97,7 +97,7 @@ function list(state) {
         <th>{{ element.members.length }} integrantes</th>
         <td v-if="element.members.length">
           <template v-for="vm in list(false).split(' ')" :key="vm">
-            <span class="badge text-bg-light">
+            <span class="badge text-bg-light" @click="$emit('choose', resolveName(vm).id)">
               {{vm}}
             </span>
           </template>
@@ -108,7 +108,7 @@ function list(state) {
         <th>Encendidas</th>
         <td v-if="list(VmState.RUNNING).length">
           <template v-for="vm in list(VmState.RUNNING).split(' ')" :key="vm">
-            <span class="badge text-bg-light">
+            <span class="badge text-bg-light" @click="$emit('choose', resolveName(vm).id)">
               {{vm}}
             </span>
           </template>
@@ -119,7 +119,7 @@ function list(state) {
         <th>Suspendidas</th>
         <td v-if="list(VmState.RUNNING).length">
           <template v-for="vm in list(VmState.SUSPENDED).split(' ')" :key="vm">
-            <span class="badge text-bg-light">
+            <span class="badge text-bg-light" @click="$emit('choose', resolveName(vm).id)">
               {{vm}}
             </span>
           </template>
@@ -130,7 +130,7 @@ function list(state) {
         <th>Apagadas</th>
         <td v-if="list(VmState.RUNNING).length">
           <template v-for="vm in list(VmState.STOPPED).split(' ')" :key="vm">
-            <span class="badge text-bg-light">
+            <span class="badge text-bg-light" @click="$emit('choose', resolveName(vm).id)">
               {{vm}}
             </span>
           </template>

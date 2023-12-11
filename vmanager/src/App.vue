@@ -236,6 +236,7 @@ const switchGroups = (vmId) => {
             @filterGroup="switchVms(selected.id)"
             @rmGroup="rmGroup(selected.id)"
             @setState="state=>setState(selected.id, state)"
+            @choose="(e) => { console.log('selected from details', e); selected = M.resolve(e) }"
           ></DetailsPane>
         </div>
       </div>
