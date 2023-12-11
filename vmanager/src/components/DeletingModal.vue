@@ -47,7 +47,7 @@ defineExpose({ show });
       </form>
     </template>
     <template #footer>
-      <button @click.prevent="() => rmObj(true)" class="btn btn-primary">
+      <button @click.prevent="() => rmObj(true)" class="btn btn-danger">
         {{ `Eliminar ${vmOrg.name}` }}
       </button>
     </template>
