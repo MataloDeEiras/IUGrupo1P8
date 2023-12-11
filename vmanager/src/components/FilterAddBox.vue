@@ -29,7 +29,6 @@ function send() {
           :value="searchKey"
           @input="{ searchKey = $event.target.value; send()}" 
           type="search" class="form-control" placeholder="Filtrar">
-        <span class="input-group-text btn-outline-secondary">🔍</span>
         <button type="button" 
           data-bs-toggle="button" 
           class="input-group-text btn btn-outline-secondary b-avanzada"
@@ -49,12 +48,15 @@ function send() {
   <div v-if="advSearch" class="row mt-3">
     <div class="col-auto">
       Filtros por campos:
-      {{ cols }}
+      <span class="bold">{{ cols.join(", ") }}</span>
     </div>
   </div>
 </template>
 
 <style scoped>
+.bold {
+  font-weight: 700;
+}
 .btn.active.b-avanzada {
   background-color: lightblue;
 }
