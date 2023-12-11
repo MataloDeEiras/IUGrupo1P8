@@ -1,7 +1,7 @@
 <script setup>
-import { resolve, VmState } from '../model.js'
+import { resolve, Vm, VmState } from '../model.js'
 
-defineEmits(['editVm', 'filterVm', 'rmVm', 'editGroup', 'filterGroup', 'rmGroup', 'setState'])
+defineEmits(['editVm', 'dupVm', 'filterVm', 'rmVm', 'editGroup', 'dupGroup', 'filterGroup', 'rmGroup', 'setState'])
 
 const props = defineProps({
   element: Object
@@ -67,7 +67,9 @@ function list(state) {
   
     <h5>Acciones</h5>
     <div class="btn-group">
-      <button @click="$emit('editVm')" class="btn btn-outline-success">✏️</button>
+      <button @click="$emit('editVm')" :disabled="element.state != VmState.STOPPED" class="btn btn-outline-success">✏️</button>
+
+      <button @click="$emit('dupVm')" class="btn btn-outline-success">🛑</button>
 
       <button v-if="element.groups.length" class="btn btn-outline-warning"
         @click="$emit('filterVm')" >🔬</button>
@@ -115,6 +117,7 @@ function list(state) {
     <h5>Acciones</h5>
     <div class="btn-group">
       <button @click="$emit('editGroup')" class="btn btn-outline-success">✏️</button>
+      <button @click="$emit('dupGroup')" class="btn btn-outline-success">🛑</button>
       <button @click="$emit('filterGroup')" class="btn btn-outline-warning">🔬</button>
       <!-- Añadido para el Ejercicio 7 -->
       <button v-if="element.members.some(vm => resolve(vm).state != VmState.RUNNING)" class="btn btn-outline-secondary"

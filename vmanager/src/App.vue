@@ -5,6 +5,7 @@ import VmGrid from './components/VmGrid.vue'
 import FilterAddBox from './components/FilterAddBox.vue'
 import VmAddOrEditModal from './components/VmAddOrEditModal.vue'
 import GroupAddOrEditModal from './components/GroupAddOrEditModal.vue'
+import DupModal from './components/DupModal.vue'
 import DetailsPane from './components/DetailsPane.vue'
 
 import { ref, onMounted, nextTick } from 'vue'
@@ -42,9 +43,12 @@ function refresh() {
 
 // modal para añadir/editar vms
 let vmModalRef = ref(null);
+// modal para duplicar vms
+let vmDupModalRef = ref(null);
 const defaultNewVm = new M.Vm(-1, 'nueva máquina', 4, 100, 50, 1,
         "0.0.0.0", 100, 100, -1, M.VmState.STOPPED, 100, 100, []);
 let vmToAddOrEdit = ref(defaultNewVm);
+let vmDup = ref(defaultNewVm);
 
 
 // empieza a editar una Vm; pasa -1 para crear una nueva
@@ -56,6 +60,13 @@ async function edVm(id) {
   // da tiempo a Vue para que prepare el componente antes de mostrarlo
   await nextTick()
   vmModalRef.value.show()
+}
+
+async function dupVm(id) { //Se duplica con el MISMO nombre
+  vmDup.value = M.resolve(id);
+  console.log('duping vm', id);
+  await nextTick();
+  vmDupModalRef.value.show();
 }
 
 function rmVm(id) {
@@ -86,21 +97,20 @@ async function edGroup(id) {
   groupModalRef.value.show()
 }
 
+async function dupGroup(id) { //Se duplica con el MISMO nombre
+  let dup = M.resolve(id);
+  console.log('duping', dup);
+  dup.id = -1;
+  M.addGroup(dup);
+  refresh();
+}
+
 function rmGroup(id) {
   M.rmGroup(id);
   if (selected.value.id == id) {
     selected.value = {id: -1};
   }
   refresh();
-}
-
-// Añadido para el Ejercicio 7
-// Dado el id de un grupo, pone el estado de todos sus miembros a state
-function setGroupState(id, state) {
-  if (selected.value.id == id) {
-    console.log("initiating run on group ", id);
-    M.resolve(id).members.map(vmId => setState(vmId, state));
-  }
 }
   
 
@@ -255,9 +265,11 @@ function setState(id, state) {
           <DetailsPane 
             :element="selected"
             @editVm="edVm(selected.id)"
+            @dupVm="dupVm(selected.id)"
             @filterVm="switchGroups(selected.id)"
             @rmVm="rmVm(selected.id)"
             @editGroup="edGroup(selected.id)"
+            @dupGroup="dupGroup(selected.id)"
             @filterGroup="switchVms(selected.id)"
             @rmGroup="rmGroup(selected.id)"
             @setState="state=>setState(selected.id, state)"
@@ -287,6 +299,16 @@ function setState(id, state) {
     :vm="vmToAddOrEdit" :isAdd="vmToAddOrEdit.id == -1"
     @add="(vm) => { console.log('adding', vm); M.addVm(vm); refresh() }"
     @edit="(vm) => { console.log('setting', vm); M.setVm(vm); refresh() }"
+    />
+
+    <!-- 
+    Modal para duplicar VM
+    siempre usamos el mismo, y no se muestra hasta que hace falta
+  -->
+  <DupModal ref="vmDupModalRef"
+    :key="vmDup.id"
+    :vm="vmDup"
+    @dup="(vm) => { console.log('duping', vm); M.addVm(vm); refresh() }"
     />
 </template>
 
