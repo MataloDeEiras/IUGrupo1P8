@@ -59,7 +59,11 @@ function list(state) {
       <tr>
         <th>Grupos a los que pertenece</th>
         <td v-if="element.groups.length">
-          {{ element.groups.map(g => resolve(g).name).join(' ') }}
+          <template v-for="group in element.groups.map(g => resolve(g).name)" :key="group">
+            <span class="badge text-bg-light">
+              {{group}}
+            </span>
+          </template>
         </td>
         <td v-else> (ninguno) </td>
       </tr>
@@ -122,6 +126,10 @@ function list(state) {
 </template>
 
 <style scoped>
+  span.badge.text-bg-light {
+    margin-left: 3px;
+    margin-right: 3px;
+  }
   tr>th {
     width: 10em;
     text-align: right;
