@@ -6,26 +6,28 @@ import RangeBox from './RangeBox.vue'
 import * as M from '../model.js'
 import { ref } from 'vue'
 
-const emit = defineEmits(['dup'])
+const emit = defineEmits(['dupVm', 'dupGroup'])
 
 const props = defineProps({
-  vm: Object,
-  isAdd: Boolean, // otherwise, editing existing instead of adding
+  entity: Object,
+  exists: Boolean, // otherwise, do not evaluate isVm
+  isVm: Boolean, // otherwise, dup group instead of dup vm
 })  
 
 let modalRef = ref(null);
 
-function dupVm() {
-  let vm = props.vm;
-  const form = document.getElementById("dupVm");
+function dupEntity() {
+  let entity = props.entity;
+  let isVm = props.isVm;
+  const form = document.getElementById("dupEntity");
   const valueFor = (name) => {
     const input = form.querySelector(`input[name=${name}]`);
     if (!input) console.log("ERROR: no input for name", name, "in", form);
     return input.value
   }
 
-  vm.id = -1;
-  console.log("saving VM...", vm, form);
+  entity.id = -1;
+  console.log(`saving ${ isVm ? "Vm" : "Group" }...`, entity, form);
 
   // comprueba validez de todos los campos, y sobreescribe resultado
   if ( ! form.checkValidity()) {
@@ -37,7 +39,7 @@ function dupVm() {
 
   // todo válido: lanza eventos a padre, y cierra modal
   for (let x = 0; x < valueFor("n-copies"); x++) { 
-    emit('dup', vm);
+    emit(isVm ? "dupVm" : "dupGroup", entity);
   }
   modalRef.value.hide();
 }
@@ -51,19 +53,19 @@ defineExpose({ show });
 
 <template>
   <VModal ref="modalRef" id="DupModal"
-    :title= "`Duplicando: ${vm.name}`" >
+    :title= "`Duplicando: ${isVm ? 'Vm' : 'Grupo'} ${entity.name}`" >
     <template #body>
-      <form id="dupVm" 
-        @submit.prevent="e => dupVm()">
+      <form id="dupEntity" 
+        @submit.prevent="e => dupEntity()">
         <div class="container">
-          <RangeBox start="1" id="n-copies" label="Copies" :min="1" :max="1000" units="Vms" />
+          <RangeBox start="1" id="n-copies" label="Copies" :min="1" :max="1000" :units="isVm ? 'Vms' : 'Grupos'" />
         </div>
         <button type="submit" class="invisible">Submit</button>
       </form>
     </template>
     <template #footer>
-      <button @click.prevent="() => dupVm()" class="btn btn-primary">
-        {{ `Duplicar ${vm.name}` }}
+      <button @click.prevent="() => dupEntity()" class="btn btn-primary">
+        {{ `Duplicar ${entity.name}` }}
       </button>
     </template>
   </VModal>

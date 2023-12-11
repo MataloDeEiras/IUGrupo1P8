@@ -44,11 +44,11 @@ function refresh() {
 // modal para añadir/editar vms
 let vmModalRef = ref(null);
 // modal para duplicar vms
-let vmDupModalRef = ref(null);
+let dupModalRef = ref(null);
 const defaultNewVm = new M.Vm(-1, 'nueva máquina', 4, 100, 50, 1,
         "0.0.0.0", 100, 100, -1, M.VmState.STOPPED, 100, 100, []);
 let vmToAddOrEdit = ref(defaultNewVm);
-let vmDup = ref(defaultNewVm);
+let entityDup = ref(defaultNewVm);
 
 
 // empieza a editar una Vm; pasa -1 para crear una nueva
@@ -63,10 +63,10 @@ async function edVm(id) {
 }
 
 async function dupVm(id) { //Se duplica con el MISMO nombre
-  vmDup.value = M.resolve(id);
+  entityDup.value = M.resolve(id);
   console.log('duping vm', id);
   await nextTick();
-  vmDupModalRef.value.show();
+  dupModalRef.value.show();
 }
 
 function rmVm(id) {
@@ -98,11 +98,10 @@ async function edGroup(id) {
 }
 
 async function dupGroup(id) { //Se duplica con el MISMO nombre
-  let dup = M.resolve(id);
-  console.log('duping', dup);
-  dup.id = -1;
-  M.addGroup(dup);
-  refresh();
+  entityDup.value = M.resolve(id);
+  console.log('duping group', id);
+  await nextTick();
+  dupModalRef.value.show();
 }
 
 function rmGroup(id) {
@@ -302,13 +301,14 @@ function setState(id, state) {
     />
 
     <!-- 
-    Modal para duplicar VM
+    Modal para duplicar VMs y grupos
     siempre usamos el mismo, y no se muestra hasta que hace falta
   -->
-  <DupModal ref="vmDupModalRef"
-    :key="vmDup.id"
-    :vm="vmDup"
-    @dup="(vm) => { console.log('duping', vm); M.addVm(vm); refresh() }"
+  <DupModal ref="dupModalRef"
+    :key="entityDup.id"
+    :entity="entityDup" :exists="entityDup.id != -1" :isVm="exists && Array.isArray(M.resolve(entityDup.id).groups)"
+    @dupVm="(vm) => { console.log('duping', vm); M.addVm(vm); refresh() }"
+    @dupGroup="(group) => { console.log('duping', group); M.addGroup(group); refresh() }"
     />
 </template>
 

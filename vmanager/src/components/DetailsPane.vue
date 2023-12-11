@@ -69,7 +69,7 @@ function list(state) {
     <div class="btn-group">
       <button @click="$emit('editVm')" :disabled="element.state != VmState.STOPPED" class="btn btn-outline-success">✏️</button>
 
-      <button @click="$emit('dupVm')" class="btn btn-outline-success">🛑</button>
+      <button @click="$emit('dupVm')" class="btn btn-outline-success doubled" title="Duplicar Vm">🖥️</button>
 
       <button v-if="element.groups.length" class="btn btn-outline-warning"
         @click="$emit('filterVm')" >🔬</button>
@@ -117,15 +117,15 @@ function list(state) {
     <h5>Acciones</h5>
     <div class="btn-group">
       <button @click="$emit('editGroup')" class="btn btn-outline-success">✏️</button>
-      <button @click="$emit('dupGroup')" class="btn btn-outline-success">🛑</button>
+      <button @click="$emit('dupGroup')" class="btn btn-outline-success" title="Duplicar Grupo">🖥️</button>
       <button @click="$emit('filterGroup')" class="btn btn-outline-warning">🔬</button>
       <!-- Añadido para el Ejercicio 7 -->
       <button v-if="element.members.some(vm => resolve(vm).state != VmState.RUNNING)" class="btn btn-outline-secondary"
-        @click="$emit('setState', VmState.RUNNING)" >▶</button>
+        @click="$emit('setState', VmState.RUNNING)" title="Iniciar Grupo">▶</button>
       <button v-if="element.members.some(vm => resolve(vm).state != VmState.SUSPENDED)" class="btn btn-outline-secondary"
-        @click="$emit('setState', VmState.SUSPENDED)">💤</button>
+        @click="$emit('setState', VmState.SUSPENDED)" title="Suspender Grupo">💤</button>
       <button v-if="element.members.some(vm => resolve(vm).state != VmState.STOPPED)" class="btn btn-outline-secondary"
-        @click="$emit('setState', VmState.STOPPED)">🛑</button>
+        @click="$emit('setState', VmState.STOPPED)" title="Apagar Grupo">🛑</button>
       <!-- -->
       <button @click="$emit('rmGroup')" class="btn btn-outline-danger">🗑️</button>
     </div>
@@ -146,5 +146,4 @@ function list(state) {
   h5 {
     margin-top: 1em;
   }
-
 </style>
