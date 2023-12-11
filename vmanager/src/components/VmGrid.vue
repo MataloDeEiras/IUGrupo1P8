@@ -83,7 +83,8 @@ function pretty(array) {
             <span class="name">{{entry[key]}}</span>
           </template>
           <template v-else-if="Array.isArray(entry[key])">
-            <p v-if="(entry[key].length>3)">{{ pretty(head(entry[key], 3)) }}    +{{tail(entry[key], 3).length}}  </p> 
+            <span v-if="(entry[key].length>3)">{{ pretty(head(entry[key], 3)) }} </span> 
+            <span :title="pretty(tail(entry[key], 3))" v-if="(entry[key].length>3)">    +{{tail(entry[key], 3).length}}  </span> 
             <p v-else>{{ pretty(head(entry[key])) }}</p> 
           </template>
           <template v-else-if="key === 'state'">
