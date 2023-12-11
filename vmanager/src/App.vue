@@ -284,8 +284,8 @@ const switchGroups = (vmId) => {
   <DeletingModal ref="adModalRef"
     :key="vmOrGroupToDelete.at(0).id"
     :vmOrg="vmOrGroupToDelete.at(0)" :isVM="vmOrGroupToDelete.at(1)"
-    @dlVm="(id) => { console.log('deleting VM', id); M.rmVm(id); refresh() }"
-    @dlGroup="(id) => { console.log('deleting Group', id); M.rmGroup(id); refresh() }"
+    @dlVm="(id) => { console.log('deleting VM', id); M.rmVm(id); if (selected.id == id) {selected = {id: -1};} refresh() }"
+    @dlGroup="(id) => { console.log('deleting Group', id); M.rmGroup(id); if (selected.id == id) {selected = {id: -1};} refresh() }"
   />
   
 </template>
