@@ -71,13 +71,16 @@ function send() {
   <div v-if="advSearch" class="row mt-3">
     <div class="col-auto">
       Filtros por campos:
-      {{ cols }}
+      <span class="bold">{{ cols.join(", ") }}</span>
     </div>
   </div>
 </template>
 
 <style scoped>
-.btn.active.b-avanzada {
-  background-color: lightblue;
-}
+  .bold {
+    font-weight: 700;
+  }
+  .btn.active.b-avanzada {
+    background-color: lightblue;
+  }
 </style>

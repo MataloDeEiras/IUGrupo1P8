@@ -20,9 +20,9 @@
 </script>
 
 <template>
-  <span :class="vmStateClasses[state]" :title="state">{{vmStateIcons[state]}}</span>
+  <span :class="vmStateClasses[state]" class="align-items-center" :title="state">{{vmStateIcons[state]}}</span>
 </template>
 
 <style scoped>
-span { height: 1.8em; width: 2.5em; font-size: 70% }
+span { height: 2em; width: 3em; font-size: 70% }
 </style>

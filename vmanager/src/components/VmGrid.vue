@@ -62,7 +62,7 @@ function pretty(array) {
 </script>
 
 <template>
-  <table v-if="filteredData.length">
+  <table class="table table-hover" v-if="filteredData.length">
     <thead>
       <tr>
         <th v-for="key in columns" :key="key"
@@ -82,12 +82,24 @@ function pretty(array) {
           <template v-if="key === 'name'">
             <span class="name">{{entry[key]}}</span>
           </template>
+          <template v-else-if="key === 'ram'">
+            {{entry[key]}}{{" Gb"}}
+          </template>
           <template v-else-if="Array.isArray(entry[key])">
             <span v-if="(entry[key].length == 0)" class="less-relevant">------</span>
-            <span v-if="(entry[key].length > 3)">{{ pretty(head(entry[key], 3)) }} </span> 
-            <span :title="pretty(tail(entry[key], 3))" v-if="(entry[key].length > 3)">  +{{tail(entry[key], 3).length}}  </span> 
-            <p v-else>{{ pretty(head(entry[key])) }}</p> 
+            <span v-if="(entry[key].length > 3)">
+              <template v-for="item in head(entry[key], 3)" :key="item">
+                <span class="badge text-bg-light">{{resolve(item).name}}</span>
+              </template>
+            </span>
+            <span class="badge text-bg-light" :title="pretty(tail(entry[key], 3))" v-if="(entry[key].length > 3)">  +{{tail(entry[key], 3).length}}  </span> 
+            <p v-else>
+              <template v-for="item in entry[key]" :key="item">
+                <span class="badge text-bg-light">{{resolve(item).name}}</span>
+              </template>
+            </p> 
           </template>
+          
           <template v-else-if="key === 'state'">
             <VmState :state="entry[key]">
             </VmState>
@@ -103,24 +115,35 @@ function pretty(array) {
 </template>
 
 <style>
-.arrow.asc::after {
-  content: "↓"
-}
-.arrow.dsc::after {
-  content: "↑"
-}
-span.name {
-  font-weight: 1000;
-}
-table {
-  margin-top: 10px;
+  .table>thead>tr>th {
+    background-color: white;
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+    z-index: 2;
+  }
+  span.badge.text-bg-light {
+    margin-left: 3px;
+    margin-right: 3px;
+  }
+  .arrow.asc::after {
+    content: "↓"
+  }
+  .arrow.dsc::after {
+    content: "↑"
+  }
+  span.name {
+    font-weight: 1000;
+  }
+  table {
+    margin-top: 10px;
 
-}
-thead>tr {
-  border-bottom: 1px solid gray;
-  color: rgb(104, 103, 103);
-}
-.less-relevant{
-  color: #787878
-}
+  }
+  thead>tr {
+    border-bottom: 1px solid gray;
+    color: rgb(104, 103, 103);
+  }
+  .less-relevant{
+    color: #787878
+  }
 </style>
