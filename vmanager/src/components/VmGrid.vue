@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { resolve } from '../model.js'
+import VmState  from './VmState.vue'
 
 // basado en https://vuejs.org/examples/#grid
 
@@ -84,6 +85,10 @@ function pretty(array) {
           <template v-else-if="Array.isArray(entry[key])">
             <p v-if="(entry[key].length>3)">{{ pretty(head(entry[key], 3)) }}    +{{tail(entry[key], 3).length}}  </p> 
             <p v-else>{{ pretty(head(entry[key])) }}</p> 
+          </template>
+          <template v-else-if="key === 'state'">
+            <VmState :state="entry[key]">
+            </VmState>
           </template>
           <template v-else>
             {{entry[key]}}
