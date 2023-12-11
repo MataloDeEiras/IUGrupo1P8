@@ -6,6 +6,7 @@ import FilterAddBox from './components/FilterAddBox.vue'
 import VmAddOrEditModal from './components/VmAddOrEditModal.vue'
 import GroupAddOrEditModal from './components/GroupAddOrEditModal.vue'
 import DetailsPane from './components/DetailsPane.vue'
+import DeletingModal from './components/DeletingModal.vue'
 
 import { ref, onMounted, nextTick } from 'vue'
 import * as bootstrap from 'bootstrap'
@@ -46,6 +47,10 @@ const defaultNewVm = new M.Vm(-1, 'nueva máquina', 4, 100, 50, 1,
         "0.0.0.0", 100, 100, -1, M.VmState.STOPPED, 100, 100, []);
 let vmToAddOrEdit = ref(defaultNewVm);
 
+let adModalRef = ref(null);
+const deleteVmOrGroup = [-1, false]
+let vmOrGroupToDelete = ref(deleteVmOrGroup);
+
 
 // empieza a editar una Vm; pasa -1 para crear una nueva
 async function edVm(id) {
@@ -58,12 +63,18 @@ async function edVm(id) {
   vmModalRef.value.show()
 }
 
-function rmVm(id) {
-  M.rmVm(id);
-  if (selected.value.id == id) {
-    selected.value = {id: -1};
-  }
-  refresh();
+async function rmVm(id) {
+  console.log("now deleting", id)
+  vmOrGroupToDelete.value = (id == -1) ? [null, false] : [ M.resolve(id), true];
+
+  // da tiempo a Vue para que prepare el componente antes de mostrarlo
+  await nextTick()
+  adModalRef.value.show()
+ // M.rmVm(id);
+ // if (selected.value.id == id) {
+ //   selected.value = {id: -1};
+ // }
+ // refresh();
 }
 
 function setState(id, state) {
@@ -84,7 +95,7 @@ let groupToAddOrEdit = ref(defaultNewGroup);
 
 // empieza a editar un grupo; pasa -1 para crear uno nuevo
 async function edGroup(id) {
-  console.log("now editing", id)
+  console.log("now deleting", id)
   groupToAddOrEdit.value = (id == -1) ?
     groupToAddOrEdit.value = defaultNewGroup :
     groupToAddOrEdit.value = M.resolve(id);
@@ -93,12 +104,18 @@ async function edGroup(id) {
   groupModalRef.value.show()
 }
 
-function rmGroup(id) {
-  M.rmGroup(id);
-  if (selected.value.id == id) {
-    selected.value = {id: -1};
-  }
-  refresh();
+async function rmGroup(id) {
+  console.log("now deleting", id)
+  vmOrGroupToDelete.value = (id == -1) ? [null, false] : [ M.resolve(id), false];
+  // da tiempo a Vue para que prepare el componente antes de mostrarlo
+  await nextTick()
+  adModalRef.value.show()
+  
+  //M.rmGroup(id);
+  //if (selected.value.id == id) {
+  //  selected.value = {id: -1};
+  //}
+  //refresh();
 }
 
 /////
@@ -263,6 +280,14 @@ const switchGroups = (vmId) => {
     @add="(vm) => { console.log('adding', vm); M.addVm(vm); refresh() }"
     @edit="(vm) => { console.log('setting', vm); M.setVm(vm); refresh() }"
     />
+
+  <DeletingModal ref="adModalRef"
+    :key="vmOrGroupToDelete.at(0).id"
+    :vmOrg="vmOrGroupToDelete.at(0)" :isVM="vmOrGroupToDelete.at(1)"
+    @dlVm="(id) => { console.log('deleting VM', id); M.rmVm(id); refresh() }"
+    @dlGroup="(id) => { console.log('deleting Group', id); M.rmGroup(id); refresh() }"
+  />
+  
 </template>
 
 <style>
