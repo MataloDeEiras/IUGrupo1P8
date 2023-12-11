@@ -40,7 +40,7 @@ defineExpose({ show: _show, hide: _hide });
         <div class="modal-footer">
           <slot name="footer"></slot>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            Close
+            Cancelar
           </button>
         </div>
       </div>
