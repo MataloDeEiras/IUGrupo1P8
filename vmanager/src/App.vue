@@ -6,6 +6,7 @@ import FilterAddBox from './components/FilterAddBox.vue'
 import VmAddOrEditModal from './components/VmAddOrEditModal.vue'
 import GroupAddOrEditModal from './components/GroupAddOrEditModal.vue'
 import DupModal from './components/DupModal.vue'
+import DeletingModal from './components/DeletingModal.vue'
 import DetailsPane from './components/DetailsPane.vue'
 
 import { ref, onMounted, nextTick } from 'vue'
@@ -43,12 +44,17 @@ function refresh() {
 
 // modal para añadir/editar vms
 let vmModalRef = ref(null);
-// modal para duplicar vms
+// modal para duplicar entidades
 let dupModalRef = ref(null);
+// modal para borrar entidades
+let delModalRef = ref(null);
 const defaultNewVm = new M.Vm(-1, 'nueva máquina', 4, 100, 50, 1,
         "0.0.0.0", 100, 100, -1, M.VmState.STOPPED, 100, 100, []);
 let vmToAddOrEdit = ref(defaultNewVm);
 let entityDup = ref(defaultNewVm);
+const deleteVmOrGroup = [-1, false]
+let vmOrGroupToDelete = ref(deleteVmOrGroup);
+
 
 
 // empieza a editar una Vm; pasa -1 para crear una nueva
@@ -69,12 +75,18 @@ async function dupVm(id) { //Se duplica con el MISMO nombre
   dupModalRef.value.show();
 }
 
-function rmVm(id) {
-  M.rmVm(id);
-  if (selected.value.id == id) {
-    selected.value = {id: -1};
-  }
-  refresh();
+async function rmVm(id) {
+  console.log("now deleting", id)
+  vmOrGroupToDelete.value = (id == -1) ? [null, false] : [ M.resolve(id), true];
+
+  // da tiempo a Vue para que prepare el componente antes de mostrarlo
+  await nextTick()
+  delModalRef.value.show()
+ // M.rmVm(id);
+ // if (selected.value.id == id) {
+ //   selected.value = {id: -1};
+ // }
+ // refresh();
 }
 
 /////
@@ -104,14 +116,19 @@ async function dupGroup(id) { //Se duplica con el MISMO nombre
   dupModalRef.value.show();
 }
 
-function rmGroup(id) {
-  M.rmGroup(id);
-  if (selected.value.id == id) {
-    selected.value = {id: -1};
-  }
-  refresh();
-}
+async function rmGroup(id) {
+  console.log("now deleting", id)
+  vmOrGroupToDelete.value = (id == -1) ? [null, false] : [ M.resolve(id), false];
+  // da tiempo a Vue para que prepare el componente antes de mostrarlo
+  await nextTick()
+  delModalRef.value.show()
   
+  //M.rmGroup(id);
+  //if (selected.value.id == id) {
+  //  selected.value = {id: -1};
+  //}
+  //refresh();
+}
 
 /////
 // Búsqueda, Filtrado y Cambio de Estados
@@ -311,6 +328,17 @@ function setState(id, state) {
     @dupVm="(vm) => { console.log('duping', vm); M.addVm(vm); refresh() }"
     @dupGroup="(group) => { console.log('duping', group); M.addGroup(group); refresh() }"
     />
+
+  <!-- 
+    Modal para borrar VMs y grupos
+    siempre usamos el mismo, y no se muestra hasta que hace falta
+  -->
+  <DeletingModal ref="delModalRef"
+    :key="vmOrGroupToDelete.at(0).id"
+    :vmOrg="vmOrGroupToDelete.at(0)" :isVM="vmOrGroupToDelete.at(1)"
+    @dlVm="(id) => { console.log('deleting VM', id); M.rmVm(id); if (selected.id == id) {selected = {id: -1};} refresh() }"
+    @dlGroup="(id) => { console.log('deleting Group', id); M.rmGroup(id); if (selected.id == id) {selected = {id: -1};} refresh() }"
+  />
 </template>
 
 <style>
