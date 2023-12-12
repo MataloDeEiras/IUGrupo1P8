@@ -20,7 +20,7 @@ function list(state) {
     (selecciona una Vm o un grupo para ver sus detalles)
   </div>
   <div v-else-if="Array.isArray(element.groups)">
-    <h4>máquina virtual <span class="name">{{element.name}}</span></h4>
+    <h4>máquina virtual <span class="name">{{ element.name }}</span></h4>
 
     <table>
       <tr>

@@ -30,16 +30,16 @@ const read = computed(() => {
 
 <template>
   <div class="row g-1">
-    <div class="col-3 text-end">
+    <div class="col-md-3 col-4 text-end">
       <label :for="id" class="form-label">{{ label }}</label>
     </div>
     <div class="col-9 text-start">
       <div v-for="o in possible" :key="o.id" class="caja">
-        <span v-if="current.some(c => c.id == o.id)" class="exists"
+        <span v-if="current.some(c => c.id == o.id)" class="exists badge"
           @click="rm(o.id)">
           {{ o.name }}
         </span>
-        <span v-else @click="current.push(o)"> 
+        <span v-else @click="current.push(o)" class = "badge text-bg-light"> 
           {{ o.name }}
         </span>
       </div>
@@ -49,8 +49,14 @@ const read = computed(() => {
 </template>
 
 <style scoped>
-.exists {
+.exists { 
+  color: black;
   background-color: lightblue;
+  
+}
+span.badge {
+  margin-left: 3px;
+  margin-right: 3px;
 }
 .caja {
   display: inline-block;

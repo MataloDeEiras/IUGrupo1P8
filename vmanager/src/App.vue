@@ -230,6 +230,7 @@ function setState(id, state) {
         <FilterAddBox 
           v-model="searchGroupQuery" 
           :cols="['name', 'members']"
+          :has-selected="selected.id != -1 && Array.isArray(M.resolve(selected.id).members)"
           @add-element="edGroup(-1)"
           addBtnTitle="Añadir nuevo grupo"
           @set-state="state=>setState(selected.id, state)"
@@ -259,12 +260,14 @@ function setState(id, state) {
         <FilterAddBox 
           v-model="searchVmQuery" 
           :cols="['name', 'ram', 'hd', 'ip']"
+          :has-selected="selected.id != -1 && Array.isArray(M.resolve(selected.id).groups)"
           @add-element="edVm(-1)"
           addBtnTitle="Añadir nueva VM"
           @set-state="state=>setState(selected.id, state)"
           runBtnTitle="Iniciar una VM"
           suspendBtnTitle="Suspender una VM" 
           stopBtnTitle="Apagar una VM" />
+          
         <div class="overflow-y-scroll vh-100">
           <VmGrid :data="vms" :columns="['name', 'ram', 'groups', 'state']" :filter-key="searchVmQuery.all"
           @choose="(e) => { console.log('selected group', e); selected = M.resolve(e) }">
