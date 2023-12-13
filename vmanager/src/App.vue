@@ -239,7 +239,8 @@ function setState(id, state) {
           stopBtnTitle="Apagar un grupo" />         
         <div class="overflow-y-scroll vh-100">
             <VmGrid :data="groups" :columns="['name', 'members']" :filter-key="searchGroupQuery.all"
-            />
+            @choose="(e) => { console.log('selected vm', e); selected = M.resolve(e) }">
+            </VmGrid>
         </div>
       </div>
       <!-- 2a columna: vms -->
@@ -269,7 +270,8 @@ function setState(id, state) {
           
         <div class="overflow-y-scroll vh-100">
           <VmGrid :data="vms" :columns="['name', 'ram', 'groups', 'state']" :filter-key="searchVmQuery.all"
-          />
+          @choose="(e) => { console.log('selected group', e); selected = M.resolve(e) }">
+          </VmGrid>
       </div>
       </div>
       <!-- 3a zona: detalles vms actuales -->
@@ -290,6 +292,7 @@ function setState(id, state) {
             @filterGroup="switchVms(selected.id)"
             @rmGroup="rmGroup(selected.id)"
             @setState="state=>setState(selected.id, state)"
+            @choose="(e) => { console.log('selected from details', e); selected = M.resolve(e) }"
           ></DetailsPane>
         </div>
       </div>

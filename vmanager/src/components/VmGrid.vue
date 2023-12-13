@@ -10,6 +10,7 @@ const props = defineProps({
   columns: Array,
   filterKey: String
 })
+defineEmits(['choose'])
 
 const sortKey = ref('')
 const sortOrders = ref(
@@ -74,7 +75,8 @@ function pretty(array) {
       </tr>
     </thead>
     <tbody>
-      <tr v-for="entry in filteredData" :key="entry.id">
+      <tr v-for="entry in filteredData" :key="entry.id"
+        @click="$emit('choose', entry.id)">
 
         <td v-for="key in columns" :key="`_${entry.id}_${key}`" class="text-start">
           <template v-if="key === 'name'">
