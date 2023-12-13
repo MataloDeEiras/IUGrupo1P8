@@ -11,7 +11,8 @@ const props = defineProps([
   'suspendBtnTitle',
   'stopBtnTitle',
   //
-  'cols'
+  'cols',
+  'hasSelected'
 ])
 
 //Añadido setState para el Ejercicio 7
@@ -56,13 +57,13 @@ function send() {
     </div>
     <!-- Añadido para el Ejercicio 7 -->
     <div class="col-auto d-inline btn-group">
-      <button type="button" :title="runBtnTitle"
+      <button type="button" :title="runBtnTitle" :disabled="!hasSelected"
       @click="$emit('setState', VmState.RUNNING)"
       class="btn btn-outline-success">▶</button>
-      <button type="button" :title="suspendBtnTitle"
+      <button type="button" :title="suspendBtnTitle" :disabled="!hasSelected"
       @click="$emit('setState', VmState.SUSPENDED)"
       class="btn btn-outline-warning">💤</button>
-      <button type="button" :title="stopBtnTitle"
+      <button type="button" :title="stopBtnTitle" :disabled="!hasSelected"
       @click="$emit('setState', VmState.STOPPED)"
       class="btn btn-outline-danger">🛑</button>
     </div>
@@ -71,13 +72,16 @@ function send() {
   <div v-if="advSearch" class="row mt-3">
     <div class="col-auto">
       Filtros por campos:
-      {{ cols }}
+      <span class="bold">{{ cols.join(", ") }}</span>
     </div>
   </div>
 </template>
 
 <style scoped>
-.btn.active.b-avanzada {
-  background-color: lightblue;
-}
+  .bold {
+    font-weight: 700;
+  }
+  .btn.active.b-avanzada {
+    background-color: lightblue;
+  }
 </style>

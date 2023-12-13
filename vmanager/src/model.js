@@ -190,6 +190,16 @@ function resolve(id) {
     return U.clone(cache.get(+id));
 }
 
+function resolveName(name) {
+    const id = Array.from(cache.keys()).find(key => cache.get(key).name === name);
+
+    if (id === undefined) {
+        throw Error("Name not found: " + name);
+    }
+
+    return U.clone(cache.get(+id));
+}
+
 // acceso y refresco de la cache de IDs
 // privado
 function getId(id, object, overwrite) {
@@ -470,4 +480,5 @@ export {
     // general
     init, // inicializa el estado; llama para no operar con un modelo vacío
     resolve, // devuelve un objeto, por ID
+    resolveName, // devuelve un objeto, por nombre
 };

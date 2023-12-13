@@ -1,7 +1,7 @@
 <script setup>
-import { resolve, Vm, VmState } from '../model.js'
-
-defineEmits(['editVm', 'dupVm', 'filterVm', 'rmVm', 'editGroup', 'dupGroup', 'filterGroup', 'rmGroup', 'setState'])
+import { resolve, VmState, resolveName } from '../model.js'
+import StateLabel from './VmState.vue'
+defineEmits(['editVm', 'dupVm', 'filterVm', 'rmVm', 'editGroup', 'dupGroup', 'filterGroup', 'rmGroup', 'setState', 'choose'])
 
 const props = defineProps({
   element: Object
@@ -20,12 +20,12 @@ function list(state) {
     (selecciona una Vm o un grupo para ver sus detalles)
   </div>
   <div v-else-if="Array.isArray(element.groups)">
-    <h4>máquina virtual <span class="name">{{element.name}}</span></h4>
+    <h4>máquina virtual <span class="name">{{ element.name }}</span></h4>
 
     <table>
       <tr>
         <th>Estado</th>
-        <td>{{ element.state }} </td>
+        <td><StateLabel :state="element.state" /> {{ element.state }} </td>
       </tr>
       <tr>
         <th>Memoria</th>
@@ -59,7 +59,11 @@ function list(state) {
       <tr>
         <th>Grupos a los que pertenece</th>
         <td v-if="element.groups.length">
-          {{ element.groups.map(g => resolve(g).name).join(' ') }}
+          <template v-for="group in element.groups.map(g => resolve(g).name)" :key="group">
+            <span class="badge text-bg-light" @click="$emit('choose', resolveName(group).id)">
+              {{group}}
+            </span>
+          </template>
         </td>
         <td v-else> (ninguno) </td>
       </tr>
@@ -67,21 +71,21 @@ function list(state) {
   
     <h5>Acciones</h5>
     <div class="btn-group">
-      <button @click="$emit('editVm')" :disabled="element.state != VmState.STOPPED" class="btn btn-outline-success">✏️</button>
+      <button @click="$emit('editVm')" :disabled="element.state != VmState.STOPPED" class="btn btn-outline-success" title="Editar máquina virtual">✏️</button>
 
-      <button @click="$emit('dupVm')" class="btn btn-outline-success doubled" title="Duplicar Vm">🖥️</button>
+      <button @click="$emit('dupVm')" class="btn btn-outline-success" title="Duplicar Vm">🖥️</button>
 
-      <button v-if="element.groups.length" class="btn btn-outline-warning"
+      <button v-if="element.groups.length" class="btn btn-outline-warning" title="Ver grupos que contienen la máquina virtual"
         @click="$emit('filterVm')" >🔬</button>
       
-      <button v-if="element.state != VmState.RUNNING" class="btn btn-outline-secondary"
+      <button v-if="element.state != VmState.RUNNING" class="btn btn-outline-secondary" title="Iniciar máquina virtual"
         @click="$emit('setState', VmState.RUNNING)" >▶</button>
-      <button v-if="element.state != VmState.SUSPENDED" class="btn btn-outline-secondary"
+      <button v-if="element.state != VmState.SUSPENDED" class="btn btn-outline-secondary" title="Suspender máquina virtual"
         @click="$emit('setState', VmState.SUSPENDED)">💤</button>
-      <button v-if="element.state != VmState.STOPPED" class="btn btn-outline-secondary"
+      <button v-if="element.state != VmState.STOPPED" class="btn btn-outline-secondary" title="Parar máquina virtual"
         @click="$emit('setState', VmState.STOPPED)">🛑</button>
       
-      <button @click="$emit('rmVm')" class="btn btn-outline-danger">🗑️</button>
+      <button @click="$emit('rmVm')" class="btn btn-outline-danger" title="Eliminar máquina virtual">🗑️</button>
     </div>
 
     </div>
@@ -93,46 +97,73 @@ function list(state) {
     <table>
       <tr>
         <th>{{ element.members.length }} integrantes</th>
-        <td v-if="element.members.length">{{ list(false) }}
+        <td v-if="element.members.length">
+          <template v-for="vm in list(false).split(' ')" :key="vm">
+            <span class="badge text-bg-light" @click="$emit('choose', resolveName(vm).id)">
+              {{vm}}
+            </span>
+          </template>
         </td>
         <td v-else> (no hay) </td>
       </tr>
       <tr>
         <th>Encendidas</th>
-        <td v-if="list(VmState.RUNNING).length">{{ list(VmState.RUNNING) }}</td>
+        <td v-if="list(VmState.RUNNING).length">
+          <template v-for="vm in list(VmState.RUNNING).split(' ')" :key="vm">
+            <span class="badge text-bg-light" @click="$emit('choose', resolveName(vm).id)">
+              {{vm}}
+            </span>
+          </template>
+        </td>
         <td v-else> (no hay) </td>
       </tr>
       <tr>
         <th>Suspendidas</th>
-        <td v-if="list(VmState.SUSPENDED).length">{{ list(VmState.SUSPENDED) }}</td>
+        <td v-if="list(VmState.RUNNING).length">
+          <template v-for="vm in list(VmState.SUSPENDED).split(' ')" :key="vm">
+            <span class="badge text-bg-light" @click="$emit('choose', resolveName(vm).id)">
+              {{vm}}
+            </span>
+          </template>
+        </td>
         <td v-else> (no hay) </td>
       </tr>
       <tr>
         <th>Apagadas</th>
-        <td v-if="list(VmState.STOPPED).length">{{ list(VmState.STOPPED) }}</td>
+        <td v-if="list(VmState.RUNNING).length">
+          <template v-for="vm in list(VmState.STOPPED).split(' ')" :key="vm">
+            <span class="badge text-bg-light" @click="$emit('choose', resolveName(vm).id)">
+              {{vm}}
+            </span>
+          </template>
+        </td>
         <td v-else> (no hay) </td>
       </tr>
     </table>
 
     <h5>Acciones</h5>
     <div class="btn-group">
-      <button @click="$emit('editGroup')" class="btn btn-outline-success">✏️</button>
+      <button @click="$emit('editGroup')" class="btn btn-outline-success" title="Editar grupo">✏️</button>
       <button @click="$emit('dupGroup')" class="btn btn-outline-success" title="Duplicar Grupo">🖥️</button>
-      <button @click="$emit('filterGroup')" class="btn btn-outline-warning">🔬</button>
+      <button @click="$emit('filterGroup')" class="btn btn-outline-warning" title="Ver máquinas que pertenecen al grupo">🔬</button>
       <!-- Añadido para el Ejercicio 7 -->
       <button v-if="element.members.some(vm => resolve(vm).state != VmState.RUNNING)" class="btn btn-outline-secondary"
         @click="$emit('setState', VmState.RUNNING)" title="Iniciar Grupo">▶</button>
       <button v-if="element.members.some(vm => resolve(vm).state != VmState.SUSPENDED)" class="btn btn-outline-secondary"
         @click="$emit('setState', VmState.SUSPENDED)" title="Suspender Grupo">💤</button>
       <button v-if="element.members.some(vm => resolve(vm).state != VmState.STOPPED)" class="btn btn-outline-secondary"
-        @click="$emit('setState', VmState.STOPPED)" title="Apagar Grupo">🛑</button>
+        @click="$emit('setState', VmState.STOPPED)" title="Parar Grupo">🛑</button>
       <!-- -->
-      <button @click="$emit('rmGroup')" class="btn btn-outline-danger">🗑️</button>
+      <button @click="$emit('rmGroup')" class="btn btn-outline-danger" title="Eliminar grupo">🗑️</button>
     </div>
   </div>
 </template>
 
 <style scoped>
+  span.badge.text-bg-light {
+    margin-left: 3px;
+    margin-right: 3px;
+  }
   tr>th {
     width: 10em;
     text-align: right;
