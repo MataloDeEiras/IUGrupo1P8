@@ -5,18 +5,12 @@ import VmState  from './VmState.vue'
 
 // basado en https://vuejs.org/examples/#grid
 
-const stateToEmoji = {
-  "funcionando": "🟢",
-  "apagada": "🟥",
-  "suspendida": "💤"
-}
-
 const props = defineProps({
   data: Array,
   columns: Array,
   filterKey: String
 })
-defineEmits(['choose'])
+defineEmits(['choose', 'checkboxed'])
 
 const sortKey = ref('')
 const sortOrders = ref(
@@ -87,14 +81,15 @@ function pretty(array) {
 
         <td v-for="key in columns" :key="`_${entry.id}_${key}`" class="text-start">
           <template v-if="key === 'name'">
-            <span class="name">{{entry[key]}}</span>
+            <input class="form-check-input" type="checkbox" @click="$emit('checkboxed', entry.id)">
+            <span class="name px-3">{{entry[key]}}</span>
           </template>
           <template v-else-if="key === 'ram'">
             {{entry[key]}}{{" Gb"}}
           </template>
           <template v-else-if="Array.isArray(entry[key])">
             {{ void(sorted = sortIdsByName(entry[key])) }}
-            <span v-if="(sorted.length == 0)" class="less-relevant">------</span>
+            <span v-if="(sorted.length == 0)" class="less-relevant">(no hay)</span>
             <span v-if="(sorted.length > 3)">
               <template v-for="item in head(sorted, 3)" :key="item">
                 <span class="badge text-bg-light">{{resolve(item).name}}</span>
@@ -124,15 +119,18 @@ function pretty(array) {
 
 <style>
   .table>thead>tr>th {
-    background-color: white;
+    background-color: rgb(232, 232, 232);
     position: sticky;
     position: -webkit-sticky;
     top: 0;
     z-index: 2;
+    border: 1px solid rgb(207, 207, 207);
+
   }
   span.badge.text-bg-light {
     margin-left: 3px;
     margin-right: 3px;
+    border: 1px solid rgb(207, 207, 207);
   }
   .arrow.asc::after {
     content: "↓"
@@ -145,10 +143,11 @@ function pretty(array) {
   }
   table {
     margin-top: 10px;
-
+  }
+  tbody>tr>td {
+    border: 1px solid rgb(207, 207, 207);
   }
   thead>tr {
-    border-bottom: 1px solid gray;
     color: rgb(104, 103, 103);
   }
   .less-relevant{

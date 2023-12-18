@@ -119,7 +119,7 @@ function list(state) {
       </tr>
       <tr>
         <th>Suspendidas</th>
-        <td v-if="list(VmState.RUNNING).length">
+        <td v-if="list(VmState.SUSPENDED).length">
           <template v-for="vm in list(VmState.SUSPENDED).split(' ').sort()" :key="vm">
             <span class="badge text-bg-light" @click="$emit('choose', resolveName(vm).id)">
               {{vm}}
@@ -130,7 +130,7 @@ function list(state) {
       </tr>
       <tr>
         <th>Apagadas</th>
-        <td v-if="list(VmState.RUNNING).length">
+        <td v-if="list(VmState.STOPPED).length">
           <template v-for="vm in list(VmState.STOPPED).split(' ').sort()" :key="vm">
             <span class="badge text-bg-light" @click="$emit('choose', resolveName(vm).id)">
               {{vm}}

@@ -21,6 +21,8 @@ window.M = M
 const vms = ref(M.getVms());
 const groups = ref(M.getGroups());
 const selected = ref({id: -1});
+let checkboxed_vms = [];
+let checkboxed_groups = [];
 
 // tooltips
 onMounted(() => {
@@ -177,6 +179,52 @@ function setState(id, state) {
   refresh();
 }
 
+function setManyStates(ids, state) {
+  for (let index in ids) {
+    console.log(ids);
+    setState(ids[index], state);
+  }
+  refresh();
+}
+
+function manageCheckVms(id) {
+  if (id != -1) {
+    console.log("managing check...")
+    let hasId = false;
+    for (let index in checkboxed_vms) { 
+      if (checkboxed_vms[index] == id) {
+        hasId = true;
+        console.log("check found, removing...")
+        checkboxed_vms = checkboxed_vms.filter((elem) => elem != id);
+      }
+    } 
+    if (!hasId) {
+      console.log("check not found, adding...")
+      checkboxed_vms.push(id);
+    }
+    console.log("result ", checkboxed_vms)
+  } 
+}
+
+function manageCheckGroups(id) {
+  if (id != -1) {
+    console.log("managing check...")
+    let hasId = false;
+    for (let index in checkboxed_groups) { 
+      if (checkboxed_groups[index] == id) {
+        hasId = true;
+        console.log("check found, removing...")
+        checkboxed_groups = checkboxed_groups.filter((elem) => elem != id);
+      }
+    } 
+    if (!hasId) {
+      console.log("check not found, adding...")
+      checkboxed_groups.push(id);
+    }
+    console.log("result ", checkboxed_groups)
+  } 
+}
+
 </script>
 
 <template>
@@ -197,14 +245,7 @@ function setState(id, state) {
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="#div-vms" title="Ir a las máquinas virtuales">Vms</a>
         </li>
-        </ul>        
-          <div class="nav-item ms-auto">
-            <div class="btn-group">
-              <button id="save" title="Guardar estado" class="btn btn-outline-secondary">💾</button>
-              <button id="clean" title="Limpiar estado" class="btn btn-outline-secondary">🧽</button>
-              <button id="restore" title="Reestablecer estado" class="btn btn-outline-secondary">↩️</button>
-            </div>
-          </div>
+        </ul>
       </div>
     </div>
   </nav>
@@ -230,16 +271,17 @@ function setState(id, state) {
         <FilterAddBox 
           v-model="searchGroupQuery" 
           :cols="['name', 'members']"
-          :has-selected="selected.id != -1 && Array.isArray(M.resolve(selected.id).members)"
+          :has-selected="checkboxed_groups.length > 0"
           @add-element="edGroup(-1)"
           addBtnTitle="Añadir nuevo grupo"
-          @set-state="state=>setState(selected.id, state)"
+          @set-state="(state) => setManyStates(checkboxed_groups, state)"
           runBtnTitle="Iniciar un grupo"
           suspendBtnTitle="Suspender un grupo" 
           stopBtnTitle="Apagar un grupo" />         
         <div class="overflow-y-scroll vh-100">
             <VmGrid :data="groups" :columns="['name', 'members']" :filter-key="searchGroupQuery.all"
-            @choose="(e) => { console.log('selected vm', e); selected = M.resolve(e) }">
+            @choose="(e) => { console.log('selected group', e); selected = M.resolve(e) }"
+            @checkboxed="(id) => manageCheckGroups(id)">
             </VmGrid>
         </div>
       </div>
@@ -260,17 +302,18 @@ function setState(id, state) {
         <FilterAddBox 
           v-model="searchVmQuery" 
           :cols="['name', 'ram', 'hd', 'ip']"
-          :has-selected="selected.id != -1 && Array.isArray(M.resolve(selected.id).groups)"
+          :has-selected="checkboxed_vms.length > 0"
           @add-element="edVm(-1)"
           addBtnTitle="Añadir nueva VM"
-          @set-state="state=>setState(selected.id, state)"
+          @set-state="state => setManyStates(checkboxed_vms, state)"
           runBtnTitle="Iniciar una VM"
           suspendBtnTitle="Suspender una VM" 
           stopBtnTitle="Apagar una VM" />
           
         <div class="overflow-y-scroll vh-100">
           <VmGrid :data="vms" :columns="['name', 'ram', 'groups', 'state']" :filter-key="searchVmQuery.all"
-          @choose="(e) => { console.log('selected group', e); selected = M.resolve(e) }">
+          @choose="(e) => { console.log('selected vm', e); selected = M.resolve(e) }"
+          @checkboxed="(id) => manageCheckVms(id)">
           </VmGrid>
       </div>
       </div>
@@ -327,9 +370,9 @@ function setState(id, state) {
   -->
   <DupModal ref="dupModalRef"
     :key="entityDup.id"
-    :entity="entityDup" :exists="entityDup.id != -1" :isVm="exists && Array.isArray(M.resolve(entityDup.id).groups)"
+    :entity="entityDup" :isVm="entityDup.id != -1 && Array.isArray(M.resolve(entityDup.id).groups)"
     @dupVm="(vm) => { console.log('duping', vm); M.addVm(vm); refresh() }"
-    @dupGroup="(group) => { console.log('duping', group); M.addGroup(group); refresh() }"
+    @dupGroup="(group) => { console.log('duping', group);  M.addGroup(group); refresh() }"
     />
 
   <!-- 

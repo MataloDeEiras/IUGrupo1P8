@@ -39,6 +39,7 @@ function send() {
           :value="searchKey"
           @input="{ searchKey = $event.target.value; send()}" 
           type="search" class="form-control" placeholder="Filtrar">
+          <span class="input-group-text btn-outline-secondary">🔍</span>
         <button type="button" 
           data-bs-toggle="button" 
           class="input-group-text btn btn-outline-secondary b-avanzada"
@@ -82,5 +83,19 @@ function send() {
   }
   .btn.active.b-avanzada {
     background-color: lightblue;
+  }
+  .form-control {
+    border-bottom: 1px solid black;
+    border-left: 1px solid black;
+    border-top: 1px solid black;
+    border-right: 1px solid rgb(214, 214, 214);
+  } 
+  .input-group-text {
+    border-bottom: 1px solid black;
+    border-right: 1px solid black;
+    border-top: 1px solid black;
+  }  
+  .input-group {
+    margin-bottom: 10px;
   }
 </style>

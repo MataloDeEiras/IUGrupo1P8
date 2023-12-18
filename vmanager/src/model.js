@@ -444,6 +444,12 @@ function addVm(vm) {
         +vm.memory, vm.groups);
     getId(newVm.id, newVm, false);
     state.vms.push(newVm);
+
+    // actualiza grupos
+    for (let g of newVm.groups) {
+        getId(g).members.push(newVm.id);
+    }
+
     return newVm;
 }
 
@@ -456,6 +462,12 @@ function addGroup(g) {
     const newGroup = new Group(lastId++, g.name, g.members);
     getId(newGroup.id, newGroup, false);
     state.groups.push(newGroup);
+    
+    // actualiza en listas de grupos de vms
+    for (let v of newGroup.members) {
+        getId(v).groups.push(newGroup.id);
+    }
+
     return newGroup;
 }
 

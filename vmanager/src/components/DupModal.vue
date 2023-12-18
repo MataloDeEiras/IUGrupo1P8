@@ -3,14 +3,12 @@
 import VModal from './VModal.vue'
 import RangeBox from './RangeBox.vue'
 
-import * as M from '../model.js'
 import { ref } from 'vue'
 
 const emit = defineEmits(['dupVm', 'dupGroup'])
 
 const props = defineProps({
   entity: Object,
-  exists: Boolean, // otherwise, do not evaluate isVm
   isVm: Boolean, // otherwise, dup group instead of dup vm
 })  
 
