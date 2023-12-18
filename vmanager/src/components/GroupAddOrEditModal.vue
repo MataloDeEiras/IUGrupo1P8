@@ -64,7 +64,7 @@ defineExpose({ show });
       </form>
     </template>
     <template #footer>
-      <button @click.prevent="() => setGroup()" class="btn btn-primary">
+      <button @click.prevent="() => setGroup()" class="btn btn-primary" title="Confirmar">
         {{ isAdd ? 'Añadir este grupo' : `Confirmar cambios a ${group.name}` }}
       </button>
     </template>

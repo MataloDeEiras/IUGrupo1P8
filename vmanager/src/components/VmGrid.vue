@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { resolve } from '../model.js'
+import VmState  from './VmState.vue'
 
 // basado en https://vuejs.org/examples/#grid
 
@@ -52,6 +53,18 @@ function sortBy(key) {
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
+  
+function head(array, n) {
+  return array.slice(0,n);  
+}
+
+function tail(array, n) {
+  return array.slice(n);
+}
+
+function pretty(array) {
+   return array.map(v => resolve(v).name).join(", ")
+}
 </script>
 
 <template>
@@ -68,7 +81,7 @@ function capitalize(str) {
       </tr>
     </thead>
     <tbody>
-      <tr v-for="entry in filteredData" :key="entry.id" 
+      <tr v-for="entry in filteredData" :key="entry.id"
         @click="$emit('choose', entry.id)">
 
         <td v-for="key in columns" :key="`_${entry.id}_${key}`" class="text-start">
@@ -78,13 +91,24 @@ function capitalize(str) {
           <template v-else-if="key === 'ram'">
             {{entry[key]}}{{" Gb"}}
           </template>
-          <template v-else-if="key === 'state'">
-            {{stateToEmoji[entry[key]]}}
-          </template>
           <template v-else-if="Array.isArray(entry[key])">
-            <template v-for="item in entry[key]" :key="item">
-              <span class="badge text-bg-light">{{resolve(item).name}}</span>
-            </template>
+            <span v-if="(entry[key].length == 0)" class="less-relevant">------</span>
+            <span v-if="(entry[key].length > 3)">
+              <template v-for="item in head(entry[key], 3)" :key="item">
+                <span class="badge text-bg-light">{{resolve(item).name}}</span>
+              </template>
+            </span>
+            <span class="badge text-bg-light" :title="pretty(tail(entry[key], 3))" v-if="(entry[key].length > 3)">  +{{tail(entry[key], 3).length}}  </span> 
+            <p v-else>
+              <template v-for="item in entry[key]" :key="item">
+                <span class="badge text-bg-light">{{resolve(item).name}}</span>
+              </template>
+            </p> 
+          </template>
+          
+          <template v-else-if="key === 'state'">
+            <VmState :state="entry[key]">
+            </VmState>
           </template>
           <template v-else>
             {{entry[key]}}
@@ -97,32 +121,35 @@ function capitalize(str) {
 </template>
 
 <style>
-.table>thead>tr>th {
-  background-color: white;
-  position: sticky;
-  position: -webkit-sticky;
-  top: 0;
-  z-index: 2;
-}
-span.badge.text-bg-light {
-  margin-left: 3px;
-  margin-right: 3px;
-}
-.arrow.asc::after {
-  content: "↓"
-}
-.arrow.dsc::after {
-  content: "↑"
-}
-span.name {
-  font-weight: 1000;
-}
-table {
-  margin-top: 10px;
+  .table>thead>tr>th {
+    background-color: white;
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+    z-index: 2;
+  }
+  span.badge.text-bg-light {
+    margin-left: 3px;
+    margin-right: 3px;
+  }
+  .arrow.asc::after {
+    content: "↓"
+  }
+  .arrow.dsc::after {
+    content: "↑"
+  }
+  span.name {
+    font-weight: 1000;
+  }
+  table {
+    margin-top: 10px;
 
-}
-thead>tr {
-  border-bottom: 1px solid gray;
-  color: rgb(104, 103, 103);
-}
+  }
+  thead>tr {
+    border-bottom: 1px solid gray;
+    color: rgb(104, 103, 103);
+  }
+  .less-relevant{
+    color: #787878
+  }
 </style>

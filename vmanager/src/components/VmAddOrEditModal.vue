@@ -91,7 +91,7 @@ defineExpose({ show });
       </form>
     </template>
     <template #footer>
-      <button @click.prevent="() => setVm()" class="btn btn-primary">
+      <button @click.prevent="() => setVm()" class="btn btn-primary" title="Confirmar">
         {{ isAdd ? 'Añadir esta VM' : `Confirmar cambios a ${vm.name}` }}
       </button>
     </template>

@@ -5,6 +5,8 @@ import VmGrid from './components/VmGrid.vue'
 import FilterAddBox from './components/FilterAddBox.vue'
 import VmAddOrEditModal from './components/VmAddOrEditModal.vue'
 import GroupAddOrEditModal from './components/GroupAddOrEditModal.vue'
+import DupModal from './components/DupModal.vue'
+import DeletingModal from './components/DeletingModal.vue'
 import DetailsPane from './components/DetailsPane.vue'
 
 import { ref, onMounted, nextTick } from 'vue'
@@ -42,9 +44,17 @@ function refresh() {
 
 // modal para añadir/editar vms
 let vmModalRef = ref(null);
+// modal para duplicar entidades
+let dupModalRef = ref(null);
+// modal para borrar entidades
+let delModalRef = ref(null);
 const defaultNewVm = new M.Vm(-1, 'nueva máquina', 4, 100, 50, 1,
         "0.0.0.0", 100, 100, -1, M.VmState.STOPPED, 100, 100, []);
 let vmToAddOrEdit = ref(defaultNewVm);
+let entityDup = ref(defaultNewVm);
+const deleteVmOrGroup = [-1, false]
+let vmOrGroupToDelete = ref(deleteVmOrGroup);
+
 
 
 // empieza a editar una Vm; pasa -1 para crear una nueva
@@ -58,19 +68,25 @@ async function edVm(id) {
   vmModalRef.value.show()
 }
 
-function rmVm(id) {
-  M.rmVm(id);
-  if (selected.value.id == id) {
-    selected.value = {id: -1};
-  }
-  refresh();
+async function dupVm(id) { //Se duplica con el MISMO nombre
+  entityDup.value = M.resolve(id);
+  console.log('duping vm', id);
+  await nextTick();
+  dupModalRef.value.show();
 }
 
-function setState(id, state) {
-  const vm = M.resolve(id);
-  vm.state = state;
-  M.setVm(vm);
-  refresh();
+async function rmVm(id) {
+  console.log("now deleting", id)
+  vmOrGroupToDelete.value = (id == -1) ? [null, false] : [ M.resolve(id), true];
+
+  // da tiempo a Vue para que prepare el componente antes de mostrarlo
+  await nextTick()
+  delModalRef.value.show()
+ // M.rmVm(id);
+ // if (selected.value.id == id) {
+ //   selected.value = {id: -1};
+ // }
+ // refresh();
 }
 
 /////
@@ -93,16 +109,29 @@ async function edGroup(id) {
   groupModalRef.value.show()
 }
 
-function rmGroup(id) {
-  M.rmGroup(id);
-  if (selected.value.id == id) {
-    selected.value = {id: -1};
-  }
-  refresh();
+async function dupGroup(id) { //Se duplica con el MISMO nombre
+  entityDup.value = M.resolve(id);
+  console.log('duping group', id);
+  await nextTick();
+  dupModalRef.value.show();
+}
+
+async function rmGroup(id) {
+  console.log("now deleting", id)
+  vmOrGroupToDelete.value = (id == -1) ? [null, false] : [ M.resolve(id), false];
+  // da tiempo a Vue para que prepare el componente antes de mostrarlo
+  await nextTick()
+  delModalRef.value.show()
+  
+  //M.rmGroup(id);
+  //if (selected.value.id == id) {
+  //  selected.value = {id: -1};
+  //}
+  //refresh();
 }
 
 /////
-// Búsqueda y Filtrado
+// Búsqueda, Filtrado y Cambio de Estados
 /////
 
 const searchGroupQuery = ref({all: '', fields: []})
@@ -134,32 +163,46 @@ const switchGroups = (vmId) => {
     M.resolve(vmId)        
 }
 
+// Editada y movida para el Ejercicio 7
+// Ahora determina si está tratando con un grupo o con una vm, y cambia su estado
+function setState(id, state) {
+  const entity = M.resolve(id);
+  if (Array.isArray(entity.groups)) {
+    entity.state = state;
+    M.setVm(entity);
+  }
+  else {
+    entity.members.map(vmId => setState(vmId, state));
+  }
+  refresh();
+}
+
 </script>
 
 <template>
   <!-- Navbar principal -->
   <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">VManager</a>
+      <a class="navbar-brand" href="#" title="Ir al inicio" >VManager</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" title="Menú">
         <span class="navbar-toggler-icon"></span>
       </button>
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#div-groups">Grupos</a>
+          <a class="nav-link active" aria-current="page" href="#div-groups" title="Ir a los grupos">Grupos</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#div-vms">Vms</a>
+          <a class="nav-link active" aria-current="page" href="#div-vms" title="Ir a las máquinas virtuales">Vms</a>
         </li>
         </ul>        
           <div class="nav-item ms-auto">
             <div class="btn-group">
-              <button id="save" class="btn btn-outline-secondary">💾</button>
-              <button id="clean" class="btn btn-outline-secondary">🧽</button>
-              <button id="restore" class="btn btn-outline-secondary">↩️</button>
+              <button id="save" title="Guardar estado" class="btn btn-outline-secondary">💾</button>
+              <button id="clean" title="Limpiar estado" class="btn btn-outline-secondary">🧽</button>
+              <button id="restore" title="Reestablecer estado" class="btn btn-outline-secondary">↩️</button>
             </div>
           </div>
       </div>
@@ -181,14 +224,19 @@ const switchGroups = (vmId) => {
               <span class="name">{{ groupFilterVm.name }}×</span>
             </span>            
           </h5>
-          <a class="d-inline d-sm-none details" href="#div-details">↘️</a>
+          <a class="d-inline d-sm-none details" href="#div-details" title="Ir a Detalles">↘️</a>
         </div>        
-        <span v-if="debug"> {{ searchGroupQuery }}</span>        
+        <span v-if="debug"> {{ searchGroupQuery }}</span>      
         <FilterAddBox 
           v-model="searchGroupQuery" 
           :cols="['name', 'members']"
+          :has-selected="selected.id != -1 && Array.isArray(M.resolve(selected.id).members)"
           @add-element="edGroup(-1)"
-          addBtnTitle="Añadir nuevo grupo"/>          
+          addBtnTitle="Añadir nuevo grupo"
+          @set-state="state=>setState(selected.id, state)"
+          runBtnTitle="Iniciar un grupo"
+          suspendBtnTitle="Suspender un grupo" 
+          stopBtnTitle="Apagar un grupo" />         
         <div class="overflow-y-scroll vh-100">
             <VmGrid :data="groups" :columns="['name', 'members']" :filter-key="searchGroupQuery.all"
             @choose="(e) => { console.log('selected vm', e); selected = M.resolve(e) }">
@@ -198,7 +246,7 @@ const switchGroups = (vmId) => {
       <!-- 2a columna: vms -->
       <div id="div-vms" class="col-md">
         <div>
-          <a class="d-inline d-sm-none escape" href="#">⬆️</a>
+          <a class="d-inline d-sm-none escape" href="#" title="Ir al inicio">⬆️</a>
           <h5 class="d-inline">Máquinas Virtuales 
             <span v-if="vmFilterGroup" class="filter"
               @click="switchVms(-1)">
@@ -206,14 +254,20 @@ const switchGroups = (vmId) => {
               <span class="name">{{ vmFilterGroup.name }}×</span>
             </span>            
           </h5>
-          <a class="d-inline d-sm-none details" href="#div-details">↘️</a>
+          <a class="d-inline d-sm-none details" href="#div-details" title="Ir a Detalles">↘️</a>
         </div>           
         <span v-if="debug"> {{ searchVmQuery }}</span>
         <FilterAddBox 
           v-model="searchVmQuery" 
           :cols="['name', 'ram', 'hd', 'ip']"
+          :has-selected="selected.id != -1 && Array.isArray(M.resolve(selected.id).groups)"
           @add-element="edVm(-1)"
-          addBtnTitle="Añadir nueva VM"/>
+          addBtnTitle="Añadir nueva VM"
+          @set-state="state=>setState(selected.id, state)"
+          runBtnTitle="Iniciar una VM"
+          suspendBtnTitle="Suspender una VM" 
+          stopBtnTitle="Apagar una VM" />
+          
         <div class="overflow-y-scroll vh-100">
           <VmGrid :data="vms" :columns="['name', 'ram', 'groups', 'state']" :filter-key="searchVmQuery.all"
           @choose="(e) => { console.log('selected group', e); selected = M.resolve(e) }">
@@ -223,16 +277,18 @@ const switchGroups = (vmId) => {
       <!-- 3a zona: detalles vms actuales -->
       <div id="div-details" class="col-md">
         <div>
-          <a class="d-inline d-sm-none escape" href="#">⬆️</a>
+          <a class="d-inline d-sm-none escape" href="#" title="Ir al inicio">⬆️</a>
           <h5 class="d-inline">Detalles</h5>
         </div>   
         <div id="details" class="container">
           <DetailsPane 
             :element="selected"
             @editVm="edVm(selected.id)"
+            @dupVm="dupVm(selected.id)"
             @filterVm="switchGroups(selected.id)"
             @rmVm="rmVm(selected.id)"
             @editGroup="edGroup(selected.id)"
+            @dupGroup="dupGroup(selected.id)"
             @filterGroup="switchVms(selected.id)"
             @rmGroup="rmGroup(selected.id)"
             @setState="state=>setState(selected.id, state)"
@@ -264,6 +320,28 @@ const switchGroups = (vmId) => {
     @add="(vm) => { console.log('adding', vm); M.addVm(vm); refresh() }"
     @edit="(vm) => { console.log('setting', vm); M.setVm(vm); refresh() }"
     />
+
+    <!-- 
+    Modal para duplicar VMs y grupos
+    siempre usamos el mismo, y no se muestra hasta que hace falta
+  -->
+  <DupModal ref="dupModalRef"
+    :key="entityDup.id"
+    :entity="entityDup" :exists="entityDup.id != -1" :isVm="exists && Array.isArray(M.resolve(entityDup.id).groups)"
+    @dupVm="(vm) => { console.log('duping', vm); M.addVm(vm); refresh() }"
+    @dupGroup="(group) => { console.log('duping', group); M.addGroup(group); refresh() }"
+    />
+
+  <!-- 
+    Modal para borrar VMs y grupos
+    siempre usamos el mismo, y no se muestra hasta que hace falta
+  -->
+  <DeletingModal ref="delModalRef"
+    :key="vmOrGroupToDelete.at(0).id"
+    :vmOrg="vmOrGroupToDelete.at(0)" :isVM="vmOrGroupToDelete.at(1)"
+    @dlVm="(id) => { console.log('deleting VM', id); M.rmVm(id); if (selected.id == id) {selected = {id: -1};} refresh() }"
+    @dlGroup="(id) => { console.log('deleting Group', id); M.rmGroup(id); if (selected.id == id) {selected = {id: -1};} refresh() }"
+  />
 </template>
 
 <style>
