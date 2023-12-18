@@ -88,7 +88,7 @@ function pretty(array) {
             {{entry[key]}}{{" Gb"}}
           </template>
           <template v-else-if="Array.isArray(entry[key])">
-            <span v-if="(entry[key].length == 0)" class="less-relevant">------</span>
+            <span v-if="(entry[key].length == 0)" class="less-relevant">(ninguno)</span>
             <span v-if="(entry[key].length > 3)">
               <template v-for="item in head(entry[key], 3)" :key="item">
                 <span class="badge text-bg-light">{{resolve(item).name}}</span>

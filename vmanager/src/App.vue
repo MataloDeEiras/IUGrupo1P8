@@ -9,7 +9,7 @@ import DupModal from './components/DupModal.vue'
 import DeletingModal from './components/DeletingModal.vue'
 import DetailsPane from './components/DetailsPane.vue'
 
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, isVNode } from 'vue'
 import * as bootstrap from 'bootstrap'
 
 // inicializa modelo (si esto fuese de verdad, habría un login previo)
@@ -21,7 +21,8 @@ window.M = M
 const vms = ref(M.getVms());
 const groups = ref(M.getGroups());
 const selected = ref({id: -1});
-const checkboxed = ref([]);
+let checkboxed_vms = [];
+let checkboxed_groups = [];
 
 // tooltips
 onMounted(() => {
@@ -90,6 +91,35 @@ async function rmVm(id) {
  // refresh();
 }
 
+function updateVmGroups(id) {
+  let groups = M.resolve(id).groups;
+  for (let index = 0; index < groups.length; index++) {
+    let gr = M.resolve(groups[index]);
+    let hasMember = false;
+    for (let vm_index = 0; vm_index < gr.members.length; vm_index++) {
+      if (gr.members[vm_index] == id) {
+        hasMember = true;
+      }
+    }
+
+    if (!hasMember) {
+      gr.members.push(id);
+    }
+  }
+}
+
+function removeVmGroups(id) {
+  let groups = M.resolve(id).groups;
+  for (let index = 0; index < groups.length; index++) {
+    let gr = M.resolve(groups[index]);
+    for (let vm_index = 0; vm_index < gr.members.length; vm_index++) {
+      if (gr.members[vm_index] == id) {
+        gr.members.splice(vm_index, 1);
+      }
+    }
+  }
+}
+
 /////
 // Grupos
 /////
@@ -129,6 +159,35 @@ async function rmGroup(id) {
   //  selected.value = {id: -1};
   //}
   //refresh();
+}
+
+function updateGroupMembers(id) {
+  let members = M.resolve(id).members;
+  for (let index = 0; index < members.length; index++) {
+    let vm = M.resolve(members[index]);
+    let hasGroup = false;
+    for (let gr_index = 0; gr_index < vm.groups.length; gr_index++) {
+      if (vm.groups[gr_index] == id) {
+        hasGroup = true;
+      }
+    }
+
+    if (!hasGroup) {
+      vm.groups.push(id);
+    }
+  }
+}
+
+function removeGroupMembers(id) {
+  let members = M.resolve(id).members;
+  for (let index = 0; index < members.length; index++) {
+    let vm = M.resolve(members[index]);
+    for (let gr_index = 0; gr_index < vm.groups.length; gr_index++) {
+      if (vm.groups[gr_index] == id) {
+        vm.groups.splice(gr_index, 1);
+      }
+    }
+  }
 }
 
 /////
@@ -179,28 +238,48 @@ function setState(id, state) {
 }
 
 function setManyStates(ids, state) {
-  for (let index in checkboxed.value) {
-    console.log(checkboxed.value);
-    setState(checkboxed.value[index], state) 
+  for (let index in ids) {
+    console.log(ids);
+    setState(ids[index], state);
   }
+  refresh();
 }
 
-function manageCheck(id) {
+function manageCheckVms(id) {
   if (id != -1) {
     console.log("managing check...")
     let hasId = false;
-    for (let index in checkboxed.value) { 
-      if (checkboxed.value[index] == id) {
+    for (let index in checkboxed_vms) { 
+      if (checkboxed_vms[index] == id) {
         hasId = true;
         console.log("check found, removing...")
-        checkboxed.value = checkboxed.value.filter((elem) => elem != id);
+        checkboxed_vms = checkboxed_vms.filter((elem) => elem != id);
       }
     } 
     if (!hasId) {
       console.log("check not found, adding...")
-      checkboxed.value.push(id);
+      checkboxed_vms.push(id);
     }
-    console.log("result ", checkboxed.value)
+    console.log("result ", checkboxed_vms)
+  } 
+}
+
+function manageCheckGroups(id) {
+  if (id != -1) {
+    console.log("managing check...")
+    let hasId = false;
+    for (let index in checkboxed_groups) { 
+      if (checkboxed_groups[index] == id) {
+        hasId = true;
+        console.log("check found, removing...")
+        checkboxed_groups = checkboxed_groups.filter((elem) => elem != id);
+      }
+    } 
+    if (!hasId) {
+      console.log("check not found, adding...")
+      checkboxed_groups.push(id);
+    }
+    console.log("result ", checkboxed_groups)
   } 
 }
 
@@ -224,14 +303,7 @@ function manageCheck(id) {
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="#div-vms" title="Ir a las máquinas virtuales">Vms</a>
         </li>
-        </ul>        
-          <div class="nav-item ms-auto">
-            <div class="btn-group">
-              <button id="save" title="Guardar estado" class="btn btn-outline-secondary">💾</button>
-              <button id="clean" title="Limpiar estado" class="btn btn-outline-secondary">🧽</button>
-              <button id="restore" title="Reestablecer estado" class="btn btn-outline-secondary">↩️</button>
-            </div>
-          </div>
+        </ul>
       </div>
     </div>
   </nav>
@@ -257,17 +329,18 @@ function manageCheck(id) {
         <FilterAddBox 
           v-model="searchGroupQuery" 
           :cols="['name', 'members']"
-          :has-selected="selected.id != -1 && Array.isArray(M.resolve(selected.id).members)"
+          :has-selected="checkboxed_groups.length > 0"
           @add-element="edGroup(-1)"
           addBtnTitle="Añadir nuevo grupo"
-          @set-state="(state) => setManyStates(checkboxed.value, state)"
+          @set-state="(state) => setManyStates(checkboxed_groups, state)"
           runBtnTitle="Iniciar un grupo"
           suspendBtnTitle="Suspender un grupo" 
-          stopBtnTitle="Apagar un grupo" />         
+          stopBtnTitle="Apagar un grupo" /> 
+
         <div class="overflow-y-scroll vh-100">
             <VmGrid :data="groups" :columns="['name', 'members']" :filter-key="searchGroupQuery.all"
             @choose="(e) => { console.log('selected group', e); selected = M.resolve(e) }"
-            @checkboxed="(id) => manageCheck(id)">
+            @checkboxed="(id) => manageCheckGroups(id)">
             </VmGrid>
         </div>
       </div>
@@ -288,17 +361,18 @@ function manageCheck(id) {
         <FilterAddBox 
           v-model="searchVmQuery" 
           :cols="['name', 'ram', 'hd', 'ip']"
-          :has-selected="selected.id != -1 && Array.isArray(M.resolve(selected.id).groups)"
+          :has-selected="checkboxed_vms.length > 0"
           @add-element="edVm(-1)"
           addBtnTitle="Añadir nueva VM"
-          @set-state="state=>setState(selected.id, state)"
+          @set-state="state => setManyStates(checkboxed_vms, state)"
           runBtnTitle="Iniciar una VM"
           suspendBtnTitle="Suspender una VM" 
           stopBtnTitle="Apagar una VM" />
           
         <div class="overflow-y-scroll vh-100">
           <VmGrid :data="vms" :columns="['name', 'ram', 'groups', 'state']" :filter-key="searchVmQuery.all"
-          @choose="(e) => { console.log('selected vm', e); selected = M.resolve(e) }">
+          @choose="(e) => { console.log('selected vm', e); selected = M.resolve(e) }"
+          @checkboxed="(id) => manageCheckVms(id)">
           </VmGrid>
       </div>
       </div>
@@ -334,8 +408,8 @@ function manageCheck(id) {
   <GroupAddOrEditModal ref="groupModalRef" 
     :key="groupToAddOrEdit.id"
     :group="groupToAddOrEdit" :isAdd="groupToAddOrEdit.id == -1"
-    @add="(g) => { console.log('adding', g); M.addGroup(g); refresh() }"
-    @edit="(g) => { console.log('setting', g); M.setGroup(g); refresh() }"
+    @add="(g) => { console.log('adding', g); let gr = M.addGroup(g); nextTick(); updateGroupMembers(gr.id); refresh() }"
+    @edit="(g) => { console.log('setting', g); removeGroupMembers(g.id); M.setGroup(g); updateGroupMembers(g.id); refresh() }"
     />
 
   <!-- 
@@ -345,8 +419,8 @@ function manageCheck(id) {
   <VmAddOrEditModal ref="vmModalRef"
     :key="vmToAddOrEdit.id"
     :vm="vmToAddOrEdit" :isAdd="vmToAddOrEdit.id == -1"
-    @add="(vm) => { console.log('adding', vm); M.addVm(vm); refresh() }"
-    @edit="(vm) => { console.log('setting', vm); M.setVm(vm); refresh() }"
+    @add="(vm) => { console.log('adding', vm); let v = M.addVm(vm); nextTick(); refresh(); updateVmGroups(v.id); refresh() }"
+    @edit="(vm) => { console.log('setting', vm); removeVmGroups(vm.id); M.setVm(vm); updateVmGroups(vm.id); refresh() }"
     />
 
     <!-- 
@@ -356,8 +430,8 @@ function manageCheck(id) {
   <DupModal ref="dupModalRef"
     :key="entityDup.id"
     :entity="entityDup" :exists="entityDup.id != -1" :isVm="exists && Array.isArray(M.resolve(entityDup.id).groups)"
-    @dupVm="(vm) => { console.log('duping', vm); M.addVm(vm); refresh() }"
-    @dupGroup="(group) => { console.log('duping', group); M.addGroup(group); refresh() }"
+    @dupVm="(vm) => { console.log('duping', vm); let v = M.addVm(vm); nextTick(); refresh(); updateVmGroups(v.id); refresh() }"
+    @dupGroup="(group) => { console.log('duping', group); let gr = M.addGroup(group); nextTick(); refresh(); updateGroupMembers(gr.id); refresh() }"
     />
 
   <!-- 
@@ -367,8 +441,8 @@ function manageCheck(id) {
   <DeletingModal ref="delModalRef"
     :key="vmOrGroupToDelete.at(0).id"
     :vmOrg="vmOrGroupToDelete.at(0)" :isVM="vmOrGroupToDelete.at(1)"
-    @dlVm="(id) => { console.log('deleting VM', id); M.rmVm(id); if (selected.id == id) {selected = {id: -1};} refresh() }"
-    @dlGroup="(id) => { console.log('deleting Group', id); M.rmGroup(id); if (selected.id == id) {selected = {id: -1};} refresh() }"
+    @dlVm="(id) => { console.log('deleting VM', id); removeVmGroups(id); M.rmVm(id); if (selected.id == id) {selected = {id: -1};} refresh() }"
+    @dlGroup="(id) => { console.log('deleting Group', id); removeGroupMembers(id); M.rmGroup(id); if (selected.id == id) {selected = {id: -1};} refresh() }"
   />
 </template>
 
