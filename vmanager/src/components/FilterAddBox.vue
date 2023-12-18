@@ -1,12 +1,22 @@
 <script setup>
 import { ref } from 'vue'
+//Añadido para el Ejercicio 7
+import { VmState } from '../model.js';
 
 const props = defineProps([
   'modelValue', 
   'addBtnTitle',
-  'cols'
+  //Añadido para el Ejercicio 7
+  'runBtnTitle',
+  'suspendBtnTitle',
+  'stopBtnTitle',
+  //
+  'cols',
+  'hasSelected'
 ])
-const emit = defineEmits(['update:modelValue', 'addElement'])
+
+//Añadido setState para el Ejercicio 7
+const emit = defineEmits(['update:modelValue', 'addElement', 'setState'])
 
 const searchKey = ref('')
 const advSearch = ref(false)
@@ -45,17 +55,47 @@ function send() {
       @click="$emit('addElement')"
       class="btn btn-outline-primary">➕</button>
     </div>
+    <!-- Añadido para el Ejercicio 7 -->
+    <div class="col-auto d-inline btn-group">
+      <button type="button" :title="runBtnTitle" :disabled="!hasSelected"
+      @click="$emit('setState', VmState.RUNNING)"
+      class="btn btn-outline-success">▶</button>
+      <button type="button" :title="suspendBtnTitle" :disabled="!hasSelected"
+      @click="$emit('setState', VmState.SUSPENDED)"
+      class="btn btn-outline-warning">💤</button>
+      <button type="button" :title="stopBtnTitle" :disabled="!hasSelected"
+      @click="$emit('setState', VmState.STOPPED)"
+      class="btn btn-outline-danger">🛑</button>
+    </div>
+    <!-- -->
   </div>
   <div v-if="advSearch" class="row mt-3">
     <div class="col-auto">
       Filtros por campos:
-      {{ cols }}
+      <span class="bold">{{ cols.join(", ") }}</span>
     </div>
   </div>
 </template>
 
 <style scoped>
-.btn.active.b-avanzada {
-  background-color: lightblue;
-}
+  .bold {
+    font-weight: 700;
+  }
+  .btn.active.b-avanzada {
+    background-color: lightblue;
+  }
+  .form-control {
+    border-bottom: 1px solid black;
+    border-left: 1px solid black;
+    border-top: 1px solid black;
+    border-right: 1px solid rgb(214, 214, 214);
+  } 
+  .input-group-text {
+    border-bottom: 1px solid black;
+    border-right: 1px solid black;
+    border-top: 1px solid black;
+  }  
+  .input-group {
+    margin-bottom: 10px;
+  }  
 </style>
