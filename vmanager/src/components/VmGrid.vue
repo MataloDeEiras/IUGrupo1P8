@@ -1,9 +1,15 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { resolve } from '../model.js'
+import { resolve, sortIdsByName } from '../model.js'
 import VmState  from './VmState.vue'
 
 // basado en https://vuejs.org/examples/#grid
+
+const stateToEmoji = {
+  "funcionando": "🟢",
+  "apagada": "🟥",
+  "suspendida": "💤"
+}
 
 const props = defineProps({
   data: Array,
@@ -59,6 +65,7 @@ function tail(array, n) {
 function pretty(array) {
    return array.map(v => resolve(v).name).join(", ")
 }
+
 </script>
 
 <template>
@@ -86,15 +93,16 @@ function pretty(array) {
             {{entry[key]}}{{" Gb"}}
           </template>
           <template v-else-if="Array.isArray(entry[key])">
-            <span v-if="(entry[key].length == 0)" class="less-relevant">------</span>
-            <span v-if="(entry[key].length > 3)">
-              <template v-for="item in head(entry[key], 3)" :key="item">
+            {{ void(sorted = sortIdsByName(entry[key])) }}
+            <span v-if="(sorted.length == 0)" class="less-relevant">------</span>
+            <span v-if="(sorted.length > 3)">
+              <template v-for="item in head(sorted, 3)" :key="item">
                 <span class="badge text-bg-light">{{resolve(item).name}}</span>
               </template>
             </span>
-            <span class="badge text-bg-light" :title="pretty(tail(entry[key], 3))" v-if="(entry[key].length > 3)">  +{{tail(entry[key], 3).length}}  </span> 
+            <span class="badge text-bg-light" :title="pretty(tail(sorted, 3))" v-if="(sorted.length > 3)">  +{{tail(sorted, 3).length}}  </span> 
             <p v-else>
-              <template v-for="item in entry[key]" :key="item">
+              <template v-for="item in sorted" :key="item">
                 <span class="badge text-bg-light">{{resolve(item).name}}</span>
               </template>
             </p> 

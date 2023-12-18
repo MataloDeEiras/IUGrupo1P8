@@ -200,6 +200,23 @@ function resolveName(name) {
     return U.clone(cache.get(+id));
 }
 
+function sortIdsByName(ids) {
+    return [...ids].sort((a, b) => {
+      const aName = resolve(a).name;
+      const bName = resolve(b).name;
+  
+      if (aName < bName) {
+        return -1;
+      }
+  
+      if (aName > bName) {
+        return 1;
+      }
+  
+      return 0;
+    });
+  }
+
 // acceso y refresco de la cache de IDs
 // privado
 function getId(id, object, overwrite) {
@@ -481,4 +498,5 @@ export {
     init, // inicializa el estado; llama para no operar con un modelo vacío
     resolve, // devuelve un objeto, por ID
     resolveName, // devuelve un objeto, por nombre
+    sortIdsByName, // ordena una lista de ids por nombre
 };
